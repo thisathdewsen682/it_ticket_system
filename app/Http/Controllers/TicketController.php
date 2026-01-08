@@ -1,0 +1,422 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Mail\TicketApprovalRequestMail;
+use App\Models\User;
+use App\Models\Ticket;
+use App\Models\TicketStatusHistory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+
+class TicketController extends Controller
+{
+    private function recordStatusChange(Ticket $ticket, ?int $userId, ?string $from, string $to, ?string $remark = null): void
+    {
+        TicketStatusHistory::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => $userId,
+            'from_status' => $from,
+            'to_status' => $to,
+            'remark' => $remark,
+        ]);
+    }
+
+    public function show(Request $request, Ticket $ticket)
+    {
+        $user = $request->user()->load('role');
+
+        $allowed = false;
+
+        if ($user?->role?->name === 'it_manager') {
+            $allowed = true;
+        }
+
+        if ($ticket->requester_id === $user->id || $ticket->approval_user_id === $user->id || $ticket->it_member_id === $user->id) {
+            $allowed = true;
+        }
+
+        if (!$allowed) {
+            abort(403);
+        }
+
+        $ticket->load([
+            'requester:id,name',
+            'approvalUser:id,name',
+            'itMember:id,name',
+            'statusHistories.user:id,name',
+        ]);
+
+        return view('tickets.show', compact('ticket'));
+    }
+
+    public function index(Request $request)
+    {
+        $baseQuery = Ticket::query()
+            ->with(['approvalUser:id,name', 'itMember:id,name', 'statusHistories.user:id,name'])
+            ->where('requester_id', $request->user()->id)
+            ->orderByDesc('id');
+
+        $pendingTickets = (clone $baseQuery)
+            ->where('status', 'pending')
+            ->paginate(10, ['*'], 'pending_page')
+            ->appends(['tab' => 'pending']);
+
+        $activeTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_approved',
+                'it_assigned',
+                'it_reopened',
+                'it_in_progress',
+                'it_completed',
+                'it_mgr_confirmed',
+                'dept_confirmed',
+            ])
+            ->paginate(10, ['*'], 'active_page')
+            ->appends(['tab' => 'active']);
+
+        $completedTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_rejected',
+                'requester_confirmed',
+            ])
+            ->paginate(10, ['*'], 'completed_page')
+            ->appends(['tab' => 'completed']);
+
+        return view('tickets.index', compact('pendingTickets', 'activeTickets', 'completedTickets'));
+    }
+
+    public function approvals(Request $request)
+    {
+        $tickets = Ticket::query()
+            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name'])
+            ->where('approval_user_id', $request->user()->id)
+            ->where('status', 'pending')
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return view('tickets.approvals', compact('tickets'));
+    }
+
+    public function approve(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->approval_user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->needed_by && now()->greaterThan($ticket->needed_by->copy()->endOfDay())) {
+            return back()->withErrors(['status' => 'Approval deadline has passed (due date exceeded).']);
+        }
+
+        $from = $ticket->status;
+
+        // Keep status values short (the DB column is limited).
+        $ticket->update(['status' => 'dept_approved']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_approved');
+
+        return back()->with('status', 'Ticket approved.');
+    }
+
+    public function reject(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->approval_user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->needed_by && now()->greaterThan($ticket->needed_by->copy()->endOfDay())) {
+            return back()->withErrors(['status' => 'Approval deadline has passed (due date exceeded).']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        // Keep status values short (the DB column is limited).
+        $ticket->update(['status' => 'dept_rejected']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_rejected', $validated['remark']);
+
+        return back()->with('status', 'Ticket rejected.');
+    }
+
+    public function assignToItMember(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if (!in_array($ticket->status, ['dept_approved', 'approved', 'it_reopened'], true)) {
+            return back()->withErrors(['it_member_id' => 'This ticket is not ready for IT assignment yet.']);
+        }
+
+        $from = $ticket->status;
+
+        $validated = $request->validate([
+            'it_member_id' => ['required', 'integer', 'exists:users,id'],
+            'it_due_at' => ['nullable', 'date'],
+            'it_instructions' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $isItMember = User::query()
+            ->whereKey($validated['it_member_id'])
+            ->whereHas('role', fn($q) => $q->where('name', 'it_member'))
+            ->exists();
+
+        if (!$isItMember) {
+            return back()->withErrors(['it_member_id' => 'Please select a valid IT member.']);
+        }
+
+        $ticket->update([
+            'it_member_id' => $validated['it_member_id'],
+            'it_due_at' => $validated['it_due_at'] ?? null,
+            'it_instructions' => $validated['it_instructions'] ?? null,
+            'status' => 'it_assigned',
+        ]);
+
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_assigned');
+
+        return back()->with('status', 'Ticket assigned to IT member.');
+    }
+
+    public function startWork(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->it_member_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if (!in_array($ticket->status, ['it_assigned', 'it_reopened'], true)) {
+            return back()->withErrors(['status' => 'This ticket cannot be started yet.']);
+        }
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_in_progress']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_in_progress');
+
+        return back()->with('status', 'Work started.');
+    }
+
+    public function markCompleted(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->it_member_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if (!in_array($ticket->status, ['it_assigned', 'it_in_progress'], true)) {
+            return back()->withErrors(['status' => 'This ticket cannot be completed yet.']);
+        }
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_completed']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_completed');
+
+        return back()->with('status', 'Marked as completed.');
+    }
+
+    public function itManagerConfirm(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->status !== 'it_completed') {
+            return back()->withErrors(['status' => 'Only completed tickets can be confirmed.']);
+        }
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_mgr_confirmed']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_mgr_confirmed');
+
+        return back()->with('status', 'IT Manager confirmed completion.');
+    }
+
+    public function itManagerReopen(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->status !== 'it_completed') {
+            return back()->withErrors(['status' => 'Only completed tickets can be reopened by IT Manager.']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_reopened']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+
+        return back()->with('status', 'Ticket reopened and returned to IT.');
+    }
+
+    public function deptManagerConfirm(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->approval_user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'it_mgr_confirmed') {
+            return back()->withErrors(['status' => 'This ticket is not ready for department confirmation yet.']);
+        }
+
+        $from = $ticket->status;
+
+        $to = $ticket->requester_id === $ticket->approval_user_id
+            ? 'requester_confirmed'
+            : 'dept_confirmed';
+
+        $ticket->update(['status' => $to]);
+        $this->recordStatusChange(
+            $ticket,
+            $request->user()->id,
+            $from,
+            $to,
+            $to === 'requester_confirmed' ? 'Auto requester confirm (same user).' : null
+        );
+
+        return back()->with('status', $to === 'requester_confirmed' ? 'Department + requester confirmed.' : 'Department confirmed.');
+    }
+
+    public function deptManagerReopen(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->approval_user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'it_mgr_confirmed') {
+            return back()->withErrors(['status' => 'Only tickets awaiting department confirmation can be reopened.']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_reopened']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+
+        return back()->with('status', 'Ticket reopened and returned to IT.');
+    }
+
+    public function requesterConfirm(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->requester_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'dept_confirmed') {
+            return back()->withErrors(['status' => 'This ticket is not ready for requester confirmation yet.']);
+        }
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'requester_confirmed']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'requester_confirmed');
+
+        return back()->with('status', 'Requester confirmed.');
+    }
+
+    public function requesterReopen(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->requester_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'dept_confirmed') {
+            return back()->withErrors(['status' => 'This ticket cannot be reopened at this stage.']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        $ticket->update([
+            'status' => 'it_reopened',
+        ]);
+
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+
+        return back()->with('status', 'Ticket reopened and sent back to IT.');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:5000'],
+            'category' => ['required', 'string', 'in:Hardware,Software,Access,Network,Email,Other'],
+            'priority' => ['required', 'string', 'in:Low,Normal,High'],
+            'needed_by' => ['required', 'date'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'approval_user_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $requester = $request->user()?->loadMissing('role');
+        $requesterRole = $requester?->role?->name;
+
+        $approvalUserId = (int) $validated['approval_user_id'];
+
+        $approvalUserIsAllowed = match ($requesterRole) {
+            // Dept manager can approve their own ticket.
+            'dept_manager' => $approvalUserId === (int) $requester->id,
+
+            // Section manager can approve their own ticket OR send to a dept manager.
+            'section_manager' => ($approvalUserId === (int) $requester->id)
+            || User::query()
+                ->whereKey($approvalUserId)
+                ->whereHas('role', fn($q) => $q->where('name', 'dept_manager'))
+                ->exists(),
+
+            // Others can choose dept_manager or section_manager.
+            default => User::query()
+                ->whereKey($approvalUserId)
+                ->whereHas('role', fn($q) => $q->whereIn('name', ['dept_manager', 'section_manager']))
+                ->exists(),
+        };
+
+        if (!$approvalUserIsAllowed) {
+            return back()
+                ->withInput()
+                ->withErrors(['approval_user_id' => 'Please select a valid approval person.']);
+        }
+
+        $approvalUser = User::query()->find($approvalUserId);
+        if (!$approvalUser?->email) {
+            return back()
+                ->withInput()
+                ->withErrors(['approval_user_id' => 'Selected approval person does not have an email address.']);
+        }
+
+        $ticket = Ticket::create([
+            'requester_id' => $request->user()->id,
+            'approval_user_id' => $validated['approval_user_id'],
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'category' => $validated['category'],
+            'priority' => $validated['priority'],
+            'needed_by' => $validated['needed_by'],
+            'location' => $validated['location'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        $this->recordStatusChange($ticket, $request->user()->id, null, 'pending');
+
+        try {
+            $ticket->loadMissing(['requester:id,name,email', 'approvalUser:id,name,email']);
+
+            $approveUrl = TicketApprovalRequestMail::buildApproveUrl($ticket);
+            $rejectUrl = TicketApprovalRequestMail::buildRejectUrl($ticket);
+            $cutoff = TicketApprovalRequestMail::approvalCutoff($ticket);
+
+            Mail::to($ticket->approvalUser->email)->send(
+                new TicketApprovalRequestMail($ticket, $approveUrl, $rejectUrl, $cutoff)
+            );
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('tickets.index')
+                ->with('status', 'Ticket submitted successfully, but the approval email could not be sent.');
+        }
+
+        return redirect()->route('tickets.index')->with('status', 'Ticket submitted successfully.');
+    }
+}

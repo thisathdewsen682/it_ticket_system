@@ -1,0 +1,257 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TicketApprovalLinkController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Signed links sent via email to approve/reject a ticket.
+Route::get('/ticket-approval/{ticket}/{action}', TicketApprovalLinkController::class)
+    ->middleware('signed')
+    ->name('tickets.approval_link');
+
+
+
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user()?->load('role');
+
+    return match ($user?->role?->name) {
+        'employee' => redirect()->route('dashboard.employee'),
+        'dept_manager', 'section_manager' => redirect()->route('dashboard.manager'),
+        'it_manager' => redirect()->route('dashboard.it_manager'),
+        'it_member' => redirect()->route('dashboard.it_member'),
+        default => redirect()->route('tickets.index'),
+    };
+})->middleware(['auth'])->name('dashboard');
+
+
+
+
+
+
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/dashboard/employee', function (Request $request) {
+        $currentUser = $request->user()?->load('role');
+        $currentRole = $currentUser?->role?->name;
+
+        $approvalUsersQuery = \App\Models\User::query()
+            ->with('role')
+            ->orderBy('name');
+
+        // Approver rules:
+        // - dept_manager: can approve themself
+        // - section_manager: can approve themself OR any dept_manager
+        // - others (non-IT): can choose dept_manager or section_manager
+        $approvalUsers = match ($currentRole) {
+            'dept_manager' => $approvalUsersQuery
+                ->whereKey($currentUser->id)
+                ->get(),
+            'section_manager' => $approvalUsersQuery
+                ->where(function ($q) use ($currentUser) {
+                        $q->whereKey($currentUser->id)
+                        ->orWhereHas('role', fn($r) => $r->where('name', 'dept_manager'));
+                    })
+                ->get(),
+            default => $approvalUsersQuery
+                ->whereHas('role', fn($q) => $q->whereIn('name', ['dept_manager', 'section_manager']))
+                ->get(),
+        };
+
+        return view('dashboard.employee', compact('approvalUsers'));
+    })->middleware('role:!it_manager,!it_member')->name('dashboard.employee');
+
+    Route::post('/tickets/store', [TicketController::class, 'store'])
+        ->middleware('role:!it_manager,!it_member')
+        ->name('tickets.store');
+
+    Route::get('/tickets', [TicketController::class, 'index'])
+        ->middleware('role:!it_manager,!it_member')
+        ->name('tickets.index');
+
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])
+        ->name('tickets.show');
+
+    Route::get('/approvals', [TicketController::class, 'approvals'])
+        ->middleware('role:dept_manager,section_manager')
+        ->name('tickets.approvals');
+
+    Route::post('/approvals/{ticket}/approve', [TicketController::class, 'approve'])
+        ->middleware('role:dept_manager,section_manager')
+        ->name('tickets.approve');
+
+    Route::post('/approvals/{ticket}/reject', [TicketController::class, 'reject'])
+        ->middleware('role:dept_manager,section_manager')
+        ->name('tickets.reject');
+
+    Route::post('/it-manager/tickets/{ticket}/assign', [TicketController::class, 'assignToItMember'])
+        ->middleware('role:it_manager')
+        ->name('tickets.assign');
+
+    Route::post('/it-manager/tickets/{ticket}/confirm', [TicketController::class, 'itManagerConfirm'])
+        ->middleware('role:it_manager')
+        ->name('tickets.it_manager_confirm');
+
+    Route::post('/it-manager/tickets/{ticket}/reopen', [TicketController::class, 'itManagerReopen'])
+        ->middleware('role:it_manager')
+        ->name('tickets.it_manager_reopen');
+
+    Route::post('/it-member/tickets/{ticket}/start', [TicketController::class, 'startWork'])
+        ->middleware('role:it_member')
+        ->name('tickets.it_member_start');
+
+    Route::post('/it-member/tickets/{ticket}/complete', [TicketController::class, 'markCompleted'])
+        ->middleware('role:it_member')
+        ->name('tickets.it_member_complete');
+
+    Route::post('/manager/tickets/{ticket}/confirm', [TicketController::class, 'deptManagerConfirm'])
+        ->middleware('role:dept_manager,section_manager')
+        ->name('tickets.dept_confirm');
+
+    Route::post('/manager/tickets/{ticket}/reopen', [TicketController::class, 'deptManagerReopen'])
+        ->middleware('role:dept_manager,section_manager')
+        ->name('tickets.dept_reopen');
+
+    Route::post('/tickets/{ticket}/confirm', [TicketController::class, 'requesterConfirm'])
+        ->middleware('role:!it_manager,!it_member')
+        ->name('tickets.requester_confirm');
+
+    Route::post('/tickets/{ticket}/reopen', [TicketController::class, 'requesterReopen'])
+        ->middleware('role:!it_manager,!it_member')
+        ->name('tickets.reopen');
+
+    Route::get('/dashboard/manager', function () {
+        $baseQuery = \App\Models\Ticket::query()
+            ->with(['requester:id,name', 'itMember:id,name', 'statusHistories.user:id,name'])
+            ->where('approval_user_id', auth()->id())
+            ->orderByDesc('id');
+
+        $pendingTickets = (clone $baseQuery)
+            ->where('status', 'pending')
+            ->paginate(10, ['*'], 'pending_page')
+            ->appends(['tab' => 'pending']);
+
+        $approvedTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_approved',
+                'it_assigned',
+                'it_reopened',
+                'it_in_progress',
+                'it_completed',
+                'it_mgr_confirmed',
+            ])
+            ->paginate(10, ['*'], 'approved_page')
+            ->appends(['tab' => 'approved']);
+
+        $completedTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_rejected',
+                'dept_confirmed',
+                'requester_confirmed',
+            ])
+            ->paginate(10, ['*'], 'completed_page')
+            ->appends(['tab' => 'completed']);
+
+        return view('dashboard.manager', compact('pendingTickets', 'approvedTickets', 'completedTickets'));
+    })->middleware('role:dept_manager,section_manager')->name('dashboard.manager');
+
+    Route::get('/dashboard/it-manager', function () {
+        $itMembers = \App\Models\User::query()
+            ->with('role')
+            ->whereHas('role', fn($q) => $q->where('name', 'it_member'))
+            ->orderBy('name')
+            ->get();
+
+        $baseQuery = \App\Models\Ticket::query()
+            ->with(['requester:id,name', 'approvalUser:id,name', 'itMember:id,name', 'statusHistories.user:id,name'])
+            ->orderByDesc('id');
+
+        $approvedTickets = (clone $baseQuery)
+            ->whereIn('status', ['dept_approved', 'it_reopened'])
+            ->paginate(10, ['*'], 'approved_page')
+            ->appends(['tab' => 'approved']);
+
+        $assigningTickets = (clone $baseQuery)
+            ->whereIn('status', ['it_assigned', 'it_in_progress'])
+            ->paginate(10, ['*'], 'assigning_page')
+            ->appends(['tab' => 'assigning']);
+
+        $pendingConfirmationTickets = (clone $baseQuery)
+            ->where('status', 'it_completed')
+            ->paginate(10, ['*'], 'pending_confirmation_page')
+            ->appends(['tab' => 'pending_confirmation']);
+
+        $confirmedTickets = (clone $baseQuery)
+            ->where('status', 'it_mgr_confirmed')
+            ->paginate(10, ['*'], 'confirmed_page')
+            ->appends(['tab' => 'confirmed']);
+
+        $completedTickets = (clone $baseQuery)
+            ->whereIn('status', ['dept_confirmed', 'requester_confirmed'])
+            ->paginate(10, ['*'], 'completed_page')
+            ->appends(['tab' => 'completed']);
+
+        return view('dashboard.it_manager', compact('approvedTickets', 'assigningTickets', 'pendingConfirmationTickets', 'confirmedTickets', 'completedTickets', 'itMembers'));
+    })->middleware('role:it_manager')->name('dashboard.it_manager');
+
+    Route::get('/dashboard/it-member', function () {
+        $baseQuery = \App\Models\Ticket::query()
+            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name'])
+            ->where('it_member_id', auth()->id())
+            ->orderByDesc('id');
+
+        $assigningTickets = (clone $baseQuery)
+            ->whereIn('status', ['it_assigned', 'it_in_progress'])
+            ->paginate(10, ['*'], 'assigning_page')
+            ->appends(['tab' => 'assigning']);
+
+        $reopenedTickets = (clone $baseQuery)
+            ->where('status', 'it_reopened')
+            ->paginate(10, ['*'], 'reopened_page')
+            ->appends(['tab' => 'reopened']);
+
+        $completedTickets = (clone $baseQuery)
+            ->where('status', 'it_completed')
+            ->paginate(10, ['*'], 'completed_page')
+            ->appends(['tab' => 'completed']);
+
+        $confirmedTickets = (clone $baseQuery)
+            ->whereIn('status', ['it_mgr_confirmed', 'dept_confirmed', 'requester_confirmed'])
+            ->paginate(10, ['*'], 'confirmed_page')
+            ->appends(['tab' => 'confirmed']);
+
+        return view('dashboard.it_member', compact('assigningTickets', 'reopenedTickets', 'completedTickets', 'confirmedTickets'));
+    })->middleware('role:it_member')->name('dashboard.it_member');
+});
+
+// Super Admin Routes
+Route::middleware(['auth', 'super-admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::get('/users', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [\App\Http\Controllers\SuperAdminController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [\App\Http\Controllers\SuperAdminController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [\App\Http\Controllers\SuperAdminController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/{user}/change-password', [\App\Http\Controllers\SuperAdminController::class, 'changePassword'])->name('users.change-password');
+});
+
+require __DIR__ . '/auth.php';
