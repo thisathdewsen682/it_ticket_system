@@ -9,6 +9,26 @@
 
     <div class="py-12">
         <div class="max-w-screen-2xl mx-auto sm:px-6 lg:px-8">
+
+            @if (session('status'))
+                <div class="mb-4 rounded-md border border-green-200 bg-green-50 p-4 text-green-800">
+                    <div class="text-sm font-medium">
+                        {{ session('status') }}
+                    </div>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
+                    <div class="text-sm font-medium mb-2">Error:</div>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden border border-emerald-200 shadow-lg sm:rounded-xl">
                 <div class="p-8 text-gray-900">
                     <div class="mb-6 text-sm text-gray-700 font-medium bg-emerald-50 border border-emerald-200 rounded-lg p-4">
@@ -79,6 +99,9 @@
                                                 class="px-4 py-3 text-left text-xs font-bold text-emerald-900 uppercase tracking-wider">
                                                 Assigned</th>
                                             <th
+                                                class="px-4 py-3 text-left text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                                                Due Date</th>
+                                            <th
                                                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Created</th>
                                             <th
@@ -123,6 +146,34 @@
                                                                                                     <div class="font-medium">{{ $ticket->updated_at?->format('Y-m-d H:i') }}</div>
                                                                                                 </div>
                                                                                             </div>
+
+                                                                                            @if($ticket->attachments && $ticket->attachments->count() > 0)
+                                                                                                <div class="mt-4">
+                                                                                                    <h3 class="text-sm font-semibold text-gray-900 mb-2">Attachments ({{ $ticket->attachments->count() }})</h3>
+                                                                                                    <div class="grid grid-cols-1 gap-2">
+                                                                                                        @foreach($ticket->attachments as $attachment)
+                                                                                                            <a href="{{ route('attachments.download', $attachment) }}" 
+                                                                                                               class="flex items-center gap-2 p-2 border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                                                                                                @if($attachment->isPdf())
+                                                                                                                    <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                                                                                                                    </svg>
+                                                                                                                @elseif($attachment->isImage())
+                                                                                                                    <svg class="w-6 h-6 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                                                                                                    </svg>
+                                                                                                                @else
+                                                                                                                    <svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                                                                                                    </svg>
+                                                                                                                @endif
+                                                                                                                <span class="flex-1 truncate">{{ $attachment->original_filename }}</span>
+                                                                                                                <span class="text-xs text-gray-500">{{ $attachment->getFileSizeHumanAttribute() }}</span>
+                                                                                                            </a>
+                                                                                                        @endforeach
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            @endif
 
                                                                                             <div class="mt-6 overflow-hidden rounded-lg border border-gray-200">
                                                                                                 <div class="overflow-x-auto">
@@ -204,6 +255,15 @@
                                                                                     {{ $ticket->itMember?->name ?? '-' }}
                                                                                 </td>
                                                                                 <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
+                                                                                    @if($ticket->needed_by)
+                                                                                        <span class="{{ now()->greaterThan($ticket->needed_by) ? 'text-red-600 font-semibold' : 'text-gray-900' }}">
+                                                                                            {{ $ticket->needed_by->format('Y-m-d') }}
+                                                                                        </span>
+                                                                                    @else
+                                                                                        -
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
                                                                                     {{ $ticket->created_at?->format('Y-m-d H:i') }}</td>
                                                                                 <td class="whitespace-nowrap px-4 py-3">
                                                                                     @if (in_array($ticket->status, ['dept_approved', 'it_reopened'], true))
@@ -220,8 +280,11 @@
                                                                                                     @endforeach
                                                                                                 </select>
 
-                                                                                                <input type="datetime-local" name="it_due_at"
-                                                                                                    class="block w-48 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                                                                                <div class="flex flex-col">
+                                                                                                    <label class="text-xs text-gray-600 mb-1">Completion Date *</label>
+                                                                                                    <input type="datetime-local" name="it_due_at" required
+                                                                                                        class="block w-48 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                                                                                </div>
                                                                                             </div>
 
                                                                                             <textarea name="it_instructions" rows="2"

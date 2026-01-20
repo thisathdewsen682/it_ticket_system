@@ -42,7 +42,7 @@
             <div class="bg-white overflow-hidden border border-emerald-200 shadow-lg sm:rounded-xl">
                 <div class="p-8 text-gray-900">
 
-                    <form method="POST" action="{{ route('tickets.store') }}">
+                    <form method="POST" action="{{ route('tickets.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         {{-- Title --}}
@@ -85,10 +85,11 @@
                         {{-- Due Date --}}
                         <div class="mb-6">
                             <label class="block font-semibold text-emerald-900 mb-2" for="needed_by">
-                                Due Date (approval closes after this day)
+                                Job Completion Deadline
                             </label>
                             <input type="datetime-local" name="needed_by" id="needed_by" value="{{ old('needed_by') }}" required
                                 class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
+                            <p class="mt-1 text-xs text-gray-600">When the job should be completed. Approval deadline is end of this day.</p>
                         </div>
 
                         {{-- Description --}}
@@ -107,6 +108,18 @@
                             </label>
                             <input type="text" name="location" id="location" value="{{ old('location') }}"
                                 class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
+                        </div>
+
+                        {{-- File Attachments --}}
+                        <div class="mb-6">
+                            <label class="block font-semibold text-emerald-900 mb-2" for="attachments">
+                                Attachments (optional)
+                            </label>
+                            <input type="file" name="attachments[]" id="attachments" multiple
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.zip,.txt"
+                                class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-emerald-500 focus:ring-emerald-500">
+                            <p class="mt-1 text-xs text-gray-600">Max 10MB per file. Allowed: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, GIF, ZIP, TXT</p>
+                            <div id="file-list" class="mt-2 text-sm text-gray-700"></div>
                         </div>
 
                         {{-- Approval Person --}}
@@ -138,6 +151,28 @@
                         </div>
 
                     </form>
+
+                    {{-- File upload preview script --}}
+                    <script>
+                        document.getElementById('attachments').addEventListener('change', function(e) {
+                            const fileList = document.getElementById('file-list');
+                            fileList.innerHTML = '';
+                            
+                            if (this.files.length > 0) {
+                                const ul = document.createElement('ul');
+                                ul.className = 'list-disc list-inside';
+                                
+                                Array.from(this.files).forEach(file => {
+                                    const li = document.createElement('li');
+                                    const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                                    li.textContent = `${file.name} (${sizeInMB} MB)`;
+                                    ul.appendChild(li);
+                                });
+                                
+                                fileList.appendChild(ul);
+                            }
+                        });
+                    </script>
 
                 </div>
             </div>

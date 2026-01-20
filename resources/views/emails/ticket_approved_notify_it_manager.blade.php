@@ -1,15 +1,15 @@
-@extends('emails.layout')
+@extends('emails.layout', ['headerColor' => '#059669', 'headerColorDark' => '#047857', 'accentColor' => '#059669'])
 
 @section('header')
-    <h1>🔔 Approval Required</h1>
-    <p>New Ticket Awaiting Your Decision</p>
+    <h1>✅ Ticket Approved</h1>
+    <p>Assignment Required - Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
+    <p class="greeting">Hello <strong>IT Manager</strong>,</p>
 
     <p class="message">
-        A new IT ticket has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
+        A ticket has been approved by the department manager and is now ready for IT member assignment. Please review and assign an IT member to handle this request.
     </p>
 
     <div class="info-card">
@@ -42,6 +42,11 @@
             <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
         </div>
 
+        <div class="info-row">
+            <span class="info-label">Approved By:</span>
+            <span class="info-value">{{ $ticket->approvalUser->name ?? 'N/A' }}</span>
+        </div>
+
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
@@ -61,22 +66,17 @@
         @endif
     </div>
 
-    @if($approvalCutoff)
     <div class="alert-box">
-        <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->format('F j, Y - 11:59 PM') }}</p>
-        <p style="margin-top: 8px;">Please make your decision before this deadline to avoid automatic expiration.</p>
+        <p><strong>⚠️ Action Required:</strong> Please assign an IT member to this ticket to begin work.</p>
     </div>
-    @endif
 
     <div class="button-container">
-        <a href="{{ $approveUrl }}" class="button button-success">✓ Approve Ticket</a>
-        <a href="{{ $rejectUrl }}" class="button button-danger">✗ Reject Ticket</a>
+        <a href="{{ url('/dashboard/it-manager?tab=approved') }}" class="button button-primary">Assign IT Member</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can also review this ticket by logging into your dashboard:<br>
-        <a href="{{ url('/approvals') }}" style="color: #059669; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
+        Log in to your IT Manager dashboard to assign this ticket to an available IT member.
     </p>
 @endsection

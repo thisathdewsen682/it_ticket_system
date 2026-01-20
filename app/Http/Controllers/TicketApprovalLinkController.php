@@ -22,8 +22,16 @@ class TicketApprovalLinkController extends Controller
 
     public function __invoke(Request $request, Ticket $ticket, string $action)
     {
+        // Load attachments relationship
+        $ticket->load('attachments');
+
         if (!in_array($action, ['approve', 'reject'], true)) {
             abort(404);
+        }
+
+        // Verify the logged-in user is the approval person
+        if ($ticket->approval_user_id !== $request->user()->id) {
+            abort(403, 'You are not authorized to approve/reject this ticket.');
         }
 
         // Extra defense-in-depth: signed URL already enforces expiry, but this ensures
@@ -53,7 +61,7 @@ class TicketApprovalLinkController extends Controller
 
         if ($action === 'approve') {
             $ticket->update(['status' => 'dept_approved']);
-            $this->recordStatusChange($ticket, null, $from, 'dept_approved', 'Approved via email link.');
+            $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_approved', 'Approved via email link.');
 
             return view('tickets.approval_link_result', [
                 'ticket' => $ticket,
@@ -64,7 +72,7 @@ class TicketApprovalLinkController extends Controller
         }
 
         $ticket->update(['status' => 'dept_rejected']);
-        $this->recordStatusChange($ticket, null, $from, 'dept_rejected', 'Rejected via email link.');
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_rejected', 'Rejected via email link.');
 
         return view('tickets.approval_link_result', [
             'ticket' => $ticket,

@@ -1,15 +1,15 @@
-@extends('emails.layout')
+@extends('emails.layout', ['headerColor' => '#f97316', 'headerColorDark' => '#ea580c', 'accentColor' => '#f97316'])
 
 @section('header')
-    <h1>🔔 Approval Required</h1>
-    <p>New Ticket Awaiting Your Decision</p>
+    <h1>⏰ Reminder: Confirmation Required</h1>
+    <p>Pending Ticket Confirmation</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
+    <p class="greeting">Dear <strong>IT Manager</strong>,</p>
 
     <p class="message">
-        A new IT ticket has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
+        This is a <strong>reminder</strong> that the following ticket has been completed by the IT member and is awaiting your confirmation. Please review and take action soon.
     </p>
 
     <div class="info-card">
@@ -38,8 +38,13 @@
         </div>
 
         <div class="info-row">
-            <span class="info-label">Requester:</span>
-            <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
+            <span class="info-label">Completed By:</span>
+            <span class="info-value">{{ $ticket->itMember->name ?? 'N/A' }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Completed At:</span>
+            <span class="info-value">{{ $ticket->updated_at->format('F j, Y - H:i') }}</span>
         </div>
 
         @if($ticket->needed_by)
@@ -47,6 +52,9 @@
             <span class="info-label">Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
                 {{ $ticket->needed_by->format('F j, Y') }}
+                @if(now()->greaterThan($ticket->needed_by))
+                    <span class="badge badge-urgent">OVERDUE</span>
+                @endif
             </span>
         </div>
         @endif
@@ -61,22 +69,17 @@
         @endif
     </div>
 
-    @if($approvalCutoff)
     <div class="alert-box">
-        <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->format('F j, Y - 11:59 PM') }}</p>
-        <p style="margin-top: 8px;">Please make your decision before this deadline to avoid automatic expiration.</p>
+        <p><strong>⚠️ Action Required:</strong> This ticket is waiting for your confirmation. Please review and confirm or reopen as needed.</p>
     </div>
-    @endif
 
     <div class="button-container">
-        <a href="{{ $approveUrl }}" class="button button-success">✓ Approve Ticket</a>
-        <a href="{{ $rejectUrl }}" class="button button-danger">✗ Reject Ticket</a>
+        <a href="{{ url('/dashboard/it-manager?tab=pending_confirmation') }}" class="button button-primary">Review & Confirm</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can also review this ticket by logging into your dashboard:<br>
-        <a href="{{ url('/approvals') }}" style="color: #059669; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
+        Access your IT Manager dashboard to take action on this ticket.
     </p>
 @endsection

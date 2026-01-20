@@ -1,15 +1,15 @@
 @extends('emails.layout')
 
 @section('header')
-    <h1>🔔 Approval Required</h1>
-    <p>New Ticket Awaiting Your Decision</p>
+    <h1>🎯 New Ticket Assigned</h1>
+    <p>Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
+    <p class="greeting">Hello <strong>{{ $ticket->itMember->name }}</strong>,</p>
 
     <p class="message">
-        A new IT ticket has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
+        A new ticket has been assigned to you by the IT Manager. Please review the details below and start working on it as soon as possible.
     </p>
 
     <div class="info-card">
@@ -44,9 +44,18 @@
 
         @if($ticket->needed_by)
         <div class="info-row">
-            <span class="info-label">Due Date:</span>
+            <span class="info-label">Ticket Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
                 {{ $ticket->needed_by->format('F j, Y') }}
+            </span>
+        </div>
+        @endif
+
+        @if($ticket->it_due_at)
+        <div class="info-row">
+            <span class="info-label">IT Completion Date:</span>
+            <span class="info-value" style="color: #dc2626; font-weight: 600;">
+                {{ \Carbon\Carbon::parse($ticket->it_due_at)->format('F j, Y - H:i') }}
             </span>
         </div>
         @endif
@@ -61,22 +70,20 @@
         @endif
     </div>
 
-    @if($approvalCutoff)
-    <div class="alert-box">
-        <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->format('F j, Y - 11:59 PM') }}</p>
-        <p style="margin-top: 8px;">Please make your decision before this deadline to avoid automatic expiration.</p>
+    @if($ticket->it_instructions)
+    <div class="instructions-box">
+        <strong>📝 IT Manager Instructions:</strong>
+        <p>{{ $ticket->it_instructions }}</p>
     </div>
     @endif
 
     <div class="button-container">
-        <a href="{{ $approveUrl }}" class="button button-success">✓ Approve Ticket</a>
-        <a href="{{ $rejectUrl }}" class="button button-danger">✗ Reject Ticket</a>
+        <a href="{{ url('/dashboard') }}" class="button button-primary">🚀 Go to Dashboard</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can also review this ticket by logging into your dashboard:<br>
-        <a href="{{ url('/approvals') }}" style="color: #059669; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
+        Please log in to your dashboard to start working on this ticket and update its status as you progress.
     </p>
 @endsection

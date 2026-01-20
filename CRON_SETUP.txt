@@ -1,0 +1,7 @@
+# Laravel Task Scheduler for IT Ticket System
+# This cron job runs Laravel's scheduler every minute, which then executes scheduled tasks
+
+# Add this line to your crontab by running: sudo crontab -e
+# Or for www-data user: sudo crontab -u www-data -e
+
+* * * * * cd /var/www/html/it_ticket_system && php artisan schedule:run >> /dev/null 2>&1

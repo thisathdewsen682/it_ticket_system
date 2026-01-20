@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Mail\TicketApprovalRequestMail;
+use App\Mail\TicketApprovedNotifyItManagerMail;
 use App\Models\User;
 use App\Models\Ticket;
+use App\Models\TicketAttachment;
 use App\Models\TicketStatusHistory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +48,7 @@ class TicketController extends Controller
             'approvalUser:id,name',
             'itMember:id,name',
             'statusHistories.user:id,name',
+            'attachments',
         ]);
 
         return view('tickets.show', compact('ticket'));
@@ -54,7 +57,7 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $baseQuery = Ticket::query()
-            ->with(['approvalUser:id,name', 'itMember:id,name', 'statusHistories.user:id,name'])
+            ->with(['approvalUser:id,name', 'itMember:id,name', 'statusHistories.user:id,name', 'attachments'])
             ->where('requester_id', $request->user()->id)
             ->orderByDesc('id');
 
@@ -90,7 +93,7 @@ class TicketController extends Controller
     public function approvals(Request $request)
     {
         $tickets = Ticket::query()
-            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name'])
+            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name', 'attachments'])
             ->where('approval_user_id', $request->user()->id)
             ->where('status', 'pending')
             ->orderByDesc('id')
@@ -105,8 +108,12 @@ class TicketController extends Controller
             abort(403);
         }
 
+        if ($ticket->status !== 'pending') {
+            return back()->withErrors(['error' => 'This ticket is no longer pending approval.']);
+        }
+
         if ($ticket->needed_by && now()->greaterThan($ticket->needed_by->copy()->endOfDay())) {
-            return back()->withErrors(['status' => 'Approval deadline has passed (due date exceeded).']);
+            return back()->withErrors(['error' => 'Approval deadline has passed. The job completion deadline was ' . $ticket->needed_by->format('F j, Y') . '.']);
         }
 
         $from = $ticket->status;
@@ -114,6 +121,16 @@ class TicketController extends Controller
         // Keep status values short (the DB column is limited).
         $ticket->update(['status' => 'dept_approved']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_approved');
+
+        // Send notification to IT Manager
+        $itManager = User::whereHas('role', function ($query) {
+            $query->where('name', 'it_manager');
+        })->first();
+
+        if ($itManager) {
+            $ticket->load(['requester', 'approvalUser']);
+            Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+        }
 
         return back()->with('status', 'Ticket approved.');
     }
@@ -124,8 +141,12 @@ class TicketController extends Controller
             abort(403);
         }
 
+        if ($ticket->status !== 'pending') {
+            return back()->withErrors(['error' => 'This ticket is no longer pending approval.']);
+        }
+
         if ($ticket->needed_by && now()->greaterThan($ticket->needed_by->copy()->endOfDay())) {
-            return back()->withErrors(['status' => 'Approval deadline has passed (due date exceeded).']);
+            return back()->withErrors(['error' => 'Rejection deadline has passed. The job completion deadline was ' . $ticket->needed_by->format('F j, Y') . '.']);
         }
 
         $validated = $request->validate([
@@ -151,9 +172,19 @@ class TicketController extends Controller
 
         $validated = $request->validate([
             'it_member_id' => ['required', 'integer', 'exists:users,id'],
-            'it_due_at' => ['nullable', 'date'],
+            'it_due_at' => ['required', 'date'],
             'it_instructions' => ['nullable', 'string', 'max:2000'],
         ]);
+
+        // Check if completion date is past the ticket due date
+        if ($ticket->needed_by && $validated['it_due_at']) {
+            $completionDate = \Carbon\Carbon::parse($validated['it_due_at']);
+            $dueDate = \Carbon\Carbon::parse($ticket->needed_by)->endOfDay();
+            
+            if ($completionDate->greaterThan($dueDate)) {
+                return back()->withErrors(['it_due_at' => 'IT completion date cannot be after the ticket due date (' . $ticket->needed_by->format('F j, Y') . ').']);
+            }
+        }
 
         $isItMember = User::query()
             ->whereKey($validated['it_member_id'])
@@ -166,12 +197,18 @@ class TicketController extends Controller
 
         $ticket->update([
             'it_member_id' => $validated['it_member_id'],
-            'it_due_at' => $validated['it_due_at'] ?? null,
+            'it_due_at' => $validated['it_due_at'],
             'it_instructions' => $validated['it_instructions'] ?? null,
             'status' => 'it_assigned',
         ]);
 
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_assigned');
+
+        // Send email to IT member
+        $itMember = User::find($validated['it_member_id']);
+        if ($itMember && $itMember->email) {
+            \Mail::to($itMember->email)->send(new \App\Mail\TicketAssignedToItMemberMail($ticket->fresh(['itMember', 'requester'])));
+        }
 
         return back()->with('status', 'Ticket assigned to IT member.');
     }
@@ -208,6 +245,12 @@ class TicketController extends Controller
 
         $ticket->update(['status' => 'it_completed']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_completed');
+
+        // Send email to IT Manager
+        $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
+        if ($itManager && $itManager->email) {
+            \Mail::to($itManager->email)->send(new \App\Mail\TicketCompletedByItMemberMail($ticket->fresh(['itMember', 'requester'])));
+        }
 
         return back()->with('status', 'Marked as completed.');
     }
@@ -347,6 +390,7 @@ class TicketController extends Controller
             'needed_by' => ['required', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
             'approval_user_id' => ['required', 'integer', 'exists:users,id'],
+            'attachments.*' => ['nullable', 'file', 'max:10240', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,zip,txt'],
         ]);
 
         $requester = $request->user()?->loadMissing('role');
@@ -399,6 +443,23 @@ class TicketController extends Controller
 
         $this->recordStatusChange($ticket, $request->user()->id, null, 'pending');
 
+        // Handle file attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $originalName = $file->getClientOriginalName();
+                $storedName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('ticket_attachments', $storedName, 'public');
+
+                $ticket->attachments()->create([
+                    'original_filename' => $originalName,
+                    'stored_filename' => $storedName,
+                    'file_path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
         try {
             $ticket->loadMissing(['requester:id,name,email', 'approvalUser:id,name,email']);
 
@@ -418,5 +479,26 @@ class TicketController extends Controller
         }
 
         return redirect()->route('tickets.index')->with('status', 'Ticket submitted successfully.');
+    }
+
+    public function downloadAttachment(Request $request, TicketAttachment $attachment)
+    {
+        $ticket = $attachment->ticket;
+        $user = $request->user();
+
+        // Check authorization
+        $allowed = $user->role?->name === 'it_manager'
+            || $ticket->requester_id === $user->id
+            || $ticket->approval_user_id === $user->id
+            || $ticket->it_member_id === $user->id;
+
+        if (!$allowed) {
+            abort(403);
+        }
+
+        return response()->download(
+            storage_path('app/public/' . $attachment->file_path),
+            $attachment->original_filename
+        );
     }
 }

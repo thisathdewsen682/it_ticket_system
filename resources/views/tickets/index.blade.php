@@ -94,9 +94,14 @@
                                     @foreach ($tickets as $ticket)
                                         <tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100">
                                             <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
-                                                <button type="button" x-data="" class="text-indigo-700 hover:underline"
+                                                <button type="button" x-data="" class="text-indigo-700 hover:underline flex items-center gap-1"
                                                     x-on:click.prevent="$dispatch('open-modal', 'ticket-history-{{ $ticket->id }}')">
                                                     #{{ $ticket->id }}
+                                                    @if($ticket->attachments && $ticket->attachments->count() > 0)
+                                                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" title="{{ $ticket->attachments->count() }} attachment(s)">
+                                                            <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    @endif
                                                 </button>
 
                                                 <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="2xl" focusable>
@@ -127,6 +132,34 @@
                                                                 <div class="font-medium">{{ $ticket->updated_at?->format('Y-m-d H:i') }}</div>
                                                             </div>
                                                         </div>
+
+                                                        @if($ticket->attachments && $ticket->attachments->count() > 0)
+                                                            <div class="mt-4">
+                                                                <h3 class="text-sm font-semibold text-gray-900 mb-2">Attachments ({{ $ticket->attachments->count() }})</h3>
+                                                                <div class="grid grid-cols-1 gap-2">
+                                                                    @foreach($ticket->attachments as $attachment)
+                                                                        <a href="{{ route('attachments.download', $attachment) }}" 
+                                                                           class="flex items-center gap-2 p-2 border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                                                            @if($attachment->isPdf())
+                                                                                <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                                    <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                                                                                </svg>
+                                                                            @elseif($attachment->isImage())
+                                                                                <svg class="w-6 h-6 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                                                                </svg>
+                                                                            @else
+                                                                                <svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                                                                </svg>
+                                                                            @endif
+                                                                            <span class="flex-1 truncate">{{ $attachment->original_filename }}</span>
+                                                                            <span class="text-xs text-gray-500">{{ $attachment->getFileSizeHumanAttribute() }}</span>
+                                                                        </a>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
 
                                                         <div class="mt-6 overflow-hidden rounded-lg border border-gray-200">
                                                             <div class="overflow-x-auto">

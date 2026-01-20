@@ -1,15 +1,15 @@
-@extends('emails.layout')
+@extends('emails.layout', ['headerColor' => '#f97316', 'headerColorDark' => '#ea580c', 'accentColor' => '#f97316'])
 
 @section('header')
-    <h1>🔔 Approval Required</h1>
-    <p>New Ticket Awaiting Your Decision</p>
+    <h1>⏰ Reminder: Approval Required</h1>
+    <p>Pending Ticket Needs Your Attention</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
+    <p class="greeting">Dear <strong>{{ $ticket->approvalUser->name }}</strong>,</p>
 
     <p class="message">
-        A new IT ticket has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
+        This is a <strong>friendly reminder</strong> that the following ticket is still pending your approval. Please review and make your decision at your earliest convenience.
     </p>
 
     <div class="info-card">
@@ -42,6 +42,11 @@
             <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
         </div>
 
+        <div class="info-row">
+            <span class="info-label">Created:</span>
+            <span class="info-value">{{ $ticket->created_at->format('F j, Y - H:i') }}</span>
+        </div>
+
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
@@ -64,7 +69,7 @@
     @if($approvalCutoff)
     <div class="alert-box">
         <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->format('F j, Y - 11:59 PM') }}</p>
-        <p style="margin-top: 8px;">Please make your decision before this deadline to avoid automatic expiration.</p>
+        <p style="margin-top: 8px;">Please take action soon to avoid missing the deadline.</p>
     </div>
     @endif
 
@@ -76,7 +81,7 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can also review this ticket by logging into your dashboard:<br>
-        <a href="{{ url('/approvals') }}" style="color: #059669; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
+        Access your approvals dashboard:<br>
+        <a href="{{ url('/approvals') }}" style="color: #f97316; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
     </p>
 @endsection

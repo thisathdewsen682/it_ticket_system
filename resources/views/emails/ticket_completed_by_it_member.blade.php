@@ -1,15 +1,15 @@
-@extends('emails.layout')
+@extends('emails.layout', ['headerColor' => '#7c3aed', 'headerColorDark' => '#6d28d9', 'accentColor' => '#7c3aed'])
 
 @section('header')
-    <h1>🔔 Approval Required</h1>
-    <p>New Ticket Awaiting Your Decision</p>
+    <h1>✅ Ticket Completed</h1>
+    <p>Confirmation Required - Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
+    <p class="greeting">Hello <strong>IT Manager</strong>,</p>
 
     <p class="message">
-        A new IT ticket has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
+        An IT member has marked the following ticket as completed. Please review the work and confirm or reopen the ticket if additional work is needed.
     </p>
 
     <div class="info-card">
@@ -38,6 +38,11 @@
         </div>
 
         <div class="info-row">
+            <span class="info-label">Completed By:</span>
+            <span class="info-value">{{ $ticket->itMember->name ?? 'N/A' }}</span>
+        </div>
+
+        <div class="info-row">
             <span class="info-label">Requester:</span>
             <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
         </div>
@@ -61,22 +66,17 @@
         @endif
     </div>
 
-    @if($approvalCutoff)
     <div class="alert-box">
-        <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->format('F j, Y - 11:59 PM') }}</p>
-        <p style="margin-top: 8px;">Please make your decision before this deadline to avoid automatic expiration.</p>
+        <p><strong>⚠️ Action Required:</strong> Please log in to your dashboard to confirm the completion or reopen the ticket if more work is needed.</p>
     </div>
-    @endif
 
     <div class="button-container">
-        <a href="{{ $approveUrl }}" class="button button-success">✓ Approve Ticket</a>
-        <a href="{{ $rejectUrl }}" class="button button-danger">✗ Reject Ticket</a>
+        <a href="{{ url('/dashboard/it-manager?tab=pending_confirmation') }}" class="button button-primary">Go to Dashboard</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can also review this ticket by logging into your dashboard:<br>
-        <a href="{{ url('/approvals') }}" style="color: #059669; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
+        You can confirm or reopen this ticket from your IT Manager dashboard.
     </p>
 @endsection

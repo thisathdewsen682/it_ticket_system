@@ -12,7 +12,7 @@ Route::get('/', function () {
 
 // Signed links sent via email to approve/reject a ticket.
 Route::get('/ticket-approval/{ticket}/{action}', TicketApprovalLinkController::class)
-    ->middleware('signed')
+    ->middleware(['auth', 'signed'])
     ->name('tickets.approval_link');
 
 
@@ -93,6 +93,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])
         ->name('tickets.show');
 
+    Route::get('/attachments/{attachment}/download', [TicketController::class, 'downloadAttachment'])
+        ->name('attachments.download');
+
     Route::get('/approvals', [TicketController::class, 'approvals'])
         ->middleware('role:dept_manager,section_manager')
         ->name('tickets.approvals');
@@ -143,7 +146,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard/manager', function () {
         $baseQuery = \App\Models\Ticket::query()
-            ->with(['requester:id,name', 'itMember:id,name', 'statusHistories.user:id,name'])
+            ->with(['requester:id,name', 'itMember:id,name', 'statusHistories.user:id,name', 'attachments'])
             ->where('approval_user_id', auth()->id())
             ->orderByDesc('id');
 
@@ -184,7 +187,7 @@ Route::middleware(['auth'])->group(function () {
             ->get();
 
         $baseQuery = \App\Models\Ticket::query()
-            ->with(['requester:id,name', 'approvalUser:id,name', 'itMember:id,name', 'statusHistories.user:id,name'])
+            ->with(['requester:id,name', 'approvalUser:id,name', 'itMember:id,name', 'statusHistories.user:id,name', 'attachments'])
             ->orderByDesc('id');
 
         $approvedTickets = (clone $baseQuery)
@@ -217,7 +220,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard/it-member', function () {
         $baseQuery = \App\Models\Ticket::query()
-            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name'])
+            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name', 'attachments'])
             ->where('it_member_id', auth()->id())
             ->orderByDesc('id');
 
