@@ -3,12 +3,18 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketApprovalLinkController;
+use App\Models\Section;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/status/sections', [TicketController::class, 'publicSectionStatus'])
+    ->name('public.section_status');
+Route::get('/status/sections/{ticket}', [TicketController::class, 'publicTicketHistory'])
+    ->name('public.section_status.show');
 
 // Signed links sent via email to approve/reject a ticket.
 Route::get('/ticket-approval/{ticket}/{action}', TicketApprovalLinkController::class)
@@ -79,7 +85,12 @@ Route::middleware(['auth'])->group(function () {
                 ->get(),
         };
 
-        return view('dashboard.employee', compact('approvalUsers'));
+        $sections = Section::orderBy('name')->get(['id', 'name']);
+
+        return view('dashboard.employee', [
+            'approvalUsers' => $approvalUsers,
+            'sections' => $sections,
+        ]);
     })->middleware('role:!it_manager,!it_member')->name('dashboard.employee');
 
     Route::post('/tickets/store', [TicketController::class, 'store'])

@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-slate-900 leading-tight">
                 {{ __('Ticket History') }} #{{ $ticket->id }}
             </h2>
 
             <a href="{{ route('dashboard') }}"
-                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-md font-semibold text-xs text-slate-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 Back
             </a>
         </div>
@@ -18,27 +18,27 @@
                 <div class="p-6 text-gray-900">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
-                            <div class="text-sm text-gray-600">Title</div>
+                            <div class="text-sm text-slate-600">Title</div>
                             <div class="font-medium">{{ $ticket->title }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-600">Current Status</div>
+                            <div class="text-sm text-slate-600">Current Status</div>
                             <div class="font-medium">{{ $ticket->status }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-600">Requester</div>
+                            <div class="text-sm text-slate-600">Requester</div>
                             <div class="font-medium">{{ $ticket->requester?->name ?? '-' }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-600">IT Member</div>
+                            <div class="text-sm text-slate-600">IT Member</div>
                             <div class="font-medium">{{ $ticket->itMember?->name ?? '-' }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-600">Approval Person</div>
+                            <div class="text-sm text-slate-600">Approval Person</div>
                             <div class="font-medium">{{ $ticket->approvalUser?->name ?? '-' }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-600">Updated</div>
+                            <div class="text-sm text-slate-600">Updated</div>
                             <div class="font-medium">{{ $ticket->updated_at?->format('Y-m-d H:i') }}</div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 @foreach($ticket->attachments as $attachment)
                                     <a href="{{ route('attachments.download', $attachment) }}" 
-                                       class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition">
+                                       class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-gray-50 hover:border-slate-300 transition">
                                         <div class="flex-shrink-0">
                                             @if($attachment->isPdf())
                                                 <svg class="w-10 h-10 text-red-500" fill="currentColor" viewBox="0 0 20 20">
@@ -82,44 +82,44 @@
                         </div>
                     @endif
 
-                    <div class="mt-6 overflow-hidden rounded-lg border border-gray-200">
+                    <div class="mt-6 overflow-hidden rounded-lg border border-slate-200">
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <table class="min-w-full divide-y divide-slate-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
-                                            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                             Time</th>
                                         <th
-                                            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                             User</th>
                                         <th
-                                            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                             From</th>
                                         <th
-                                            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                             To</th>
                                         <th
-                                            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                             Remark</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200 bg-white">
+                                <tbody class="divide-y divide-slate-200 bg-white">
                                     @foreach (($ticket->statusHistories ?? collect())->sortByDesc('id') as $h)
                                         <tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100">
-                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
+                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                 {{ $h->created_at?->format('Y-m-d H:i') }}
                                             </td>
-                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
+                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                 {{ $h->user?->name ?? 'System' }}
                                             </td>
-                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
+                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                 {{ $h->from_status ?? '—' }}
                                             </td>
-                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
+                                            <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                 {{ $h->to_status }}
                                             </td>
-                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                            <td class="px-4 py-3 text-sm text-slate-700">
                                                 {{ $h->remark ?? '—' }}
                                             </td>
                                         </tr>

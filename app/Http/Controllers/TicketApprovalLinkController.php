@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TicketApprovedNotifyItManagerMail;
 use App\Models\Ticket;
 use App\Models\TicketStatusHistory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class TicketApprovalLinkController extends Controller
 {
@@ -31,7 +35,11 @@ class TicketApprovalLinkController extends Controller
 
         // Verify the logged-in user is the approval person
         if ($ticket->approval_user_id !== $request->user()->id) {
-            abort(403, 'You are not authorized to approve/reject this ticket.');
+            Auth::logout();
+
+            return redirect()
+                ->guest(route('login'))
+                ->with('status', 'Please sign in as the approver to approve/reject this ticket.');
         }
 
         // Extra defense-in-depth: signed URL already enforces expiry, but this ensures
@@ -62,6 +70,13 @@ class TicketApprovalLinkController extends Controller
         if ($action === 'approve') {
             $ticket->update(['status' => 'dept_approved']);
             $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_approved', 'Approved via email link.');
+
+            // Notify IT Manager (same as dashboard approval path)
+            $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
+            if ($itManager && $itManager->email) {
+                $ticket->loadMissing(['requester', 'approvalUser']);
+                Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+            }
 
             return view('tickets.approval_link_result', [
                 'ticket' => $ticket,

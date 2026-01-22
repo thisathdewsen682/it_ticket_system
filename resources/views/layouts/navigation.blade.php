@@ -1,5 +1,5 @@
 {{-- filepath: d:\Thisath\Company Projects\it_ticket_system\resources\views\layouts\navigation.blade.php --}}
-<nav x-data="{ open: false }" class="bg-white/90 backdrop-blur border-b border-emerald-200 shadow-sm relative z-40">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm">
     @php
         $roleName = auth()->user()?->role?->name;
 
@@ -15,12 +15,12 @@
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ $dashboardUrl }}">
-                        <div class="font-bold text-emerald-900 leading-tight hover:text-emerald-600 transition-colors">
-                            IT JOB REQUEST SYSTEM
+                        <div class="text-xl font-bold text-slate-900 leading-tight hover:text-blue-600 transition-colors">
+                            <span class="text-blue-600">IT</span> Request System
                         </div>
                     </a>
                 </div>
@@ -60,7 +60,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-emerald-50 hover:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            class="inline-flex items-center px-3 py-2 border border-slate-300 text-sm leading-4 font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -95,7 +95,7 @@
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                    class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:bg-slate-100 focus:text-slate-500 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex"
                             stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -134,10 +134,10 @@
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
+        <div class="pt-4 pb-1 border-t border-slate-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-slate-800">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-slate-500">{{ Auth::user()->email }}</div>
             </div>
 
             <div class="mt-3 space-y-1">

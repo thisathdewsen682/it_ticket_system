@@ -17,7 +17,7 @@ class Ticket extends Model
         'needed_by',
         'it_due_at',
         'affected_user',
-        'location',
+        'section_id',
         'it_instructions',
         'asset_tag',
         'device_name',
@@ -64,6 +64,11 @@ class Ticket extends Model
     public function statusHistories()
     {
         return $this->hasMany(TicketStatusHistory::class);
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
     }
 
     public function attachments()

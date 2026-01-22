@@ -9,6 +9,7 @@ use App\Mail\TicketReopenedByDeptManagerMail;
 use App\Mail\TicketItManagerConfirmedMail;
 use App\Mail\TicketDeptConfirmedNotifyRequesterMail;
 use App\Mail\TicketReopenedByRequesterMail;
+use App\Models\Section;
 use App\Models\User;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
@@ -17,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
@@ -58,6 +60,88 @@ class TicketController extends Controller
         ]);
 
         return view('tickets.show', compact('ticket'));
+    }
+
+    public function publicSectionStatus(Request $request)
+    {
+        $statusLabels = [
+            'pending' => 'Pending approval',
+            'dept_approved' => 'Manager approved',
+            'it_assigned' => 'Assigned to IT',
+            'it_in_progress' => 'In progress',
+            'it_completed' => 'Awaiting IT manager confirmation',
+            'it_mgr_confirmed' => 'IT manager confirmed',
+            'dept_confirmed' => 'Department confirmed',
+            'requester_confirmed' => 'Requester confirmed',
+            'it_reopened' => 'Reopened to IT',
+            'dept_rejected' => 'Rejected',
+        ];
+
+        $validated = $request->validate([
+            'section_id' => ['nullable', 'integer', 'exists:sections,id'],
+            'status' => ['nullable', 'string', Rule::in(array_keys($statusLabels))],
+            'search' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $ticketsQuery = Ticket::query()
+            ->select(['id', 'title', 'status', 'priority', 'section_id', 'needed_by', 'updated_at'])
+            ->with('section:id,name')
+            ->orderByDesc('updated_at');
+
+        if (!empty($validated['section_id'])) {
+            $ticketsQuery->where('section_id', $validated['section_id']);
+        }
+
+        if (!empty($validated['status'])) {
+            $ticketsQuery->where('status', $validated['status']);
+        }
+
+        if (!empty($validated['search'])) {
+            $ticketsQuery->where('title', 'like', '%' . $validated['search'] . '%');
+        }
+
+        $tickets = $ticketsQuery->paginate(15)->withQueryString();
+
+        $sections = Section::orderBy('name')->get(['id', 'name']);
+
+        return view('public.section_status', [
+            'tickets' => $tickets,
+            'sections' => $sections,
+            'statuses' => $statusLabels,
+            'selectedSection' => $validated['section_id'] ?? null,
+            'selectedStatus' => $validated['status'] ?? null,
+            'search' => $validated['search'] ?? null,
+        ]);
+    }
+
+    public function publicTicketHistory(Ticket $ticket)
+    {
+        $ticket->load(['section:id,name']);
+
+        $histories = TicketStatusHistory::query()
+            ->where('ticket_id', $ticket->id)
+            ->with('user:id,name')
+            ->orderBy('created_at')
+            ->get(['id', 'ticket_id', 'user_id', 'from_status', 'to_status', 'remark', 'created_at']);
+
+        $statusLabels = [
+            'pending' => 'Pending approval',
+            'dept_approved' => 'Manager approved',
+            'it_assigned' => 'Assigned to IT',
+            'it_in_progress' => 'In progress',
+            'it_completed' => 'Awaiting IT manager confirmation',
+            'it_mgr_confirmed' => 'IT manager confirmed',
+            'dept_confirmed' => 'Department confirmed',
+            'requester_confirmed' => 'Requester confirmed',
+            'it_reopened' => 'Reopened to IT',
+            'dept_rejected' => 'Rejected',
+        ];
+
+        return view('public.ticket_history', [
+            'ticket' => $ticket,
+            'histories' => $histories,
+            'statuses' => $statusLabels,
+        ]);
     }
 
     public function index(Request $request)
@@ -438,7 +522,7 @@ class TicketController extends Controller
             'category' => ['required', 'string', 'in:Hardware,Software,Access,Network,Email,Other'],
             'priority' => ['required', 'string', 'in:Low,Normal,High'],
             'needed_by' => ['required', 'date'],
-            'location' => ['nullable', 'string', 'max:255'],
+            'section_id' => ['required', 'integer', 'exists:sections,id'],
             'approval_user_id' => ['required', 'integer', 'exists:users,id'],
             'attachments.*' => ['nullable', 'file', 'max:10240', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,zip,txt'],
         ]);
@@ -487,7 +571,7 @@ class TicketController extends Controller
             'category' => $validated['category'],
             'priority' => $validated['priority'],
             'needed_by' => $validated['needed_by'],
-            'location' => $validated['location'] ?? null,
+            'section_id' => $validated['section_id'],
             'status' => 'pending',
         ]);
 
