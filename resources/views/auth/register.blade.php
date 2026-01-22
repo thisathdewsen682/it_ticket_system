@@ -1,4 +1,14 @@
 <x-guest-layout>
+    <!-- Home Link -->
+    <div class="mb-4 flex justify-between items-center">
+        <a href="{{ url('/') }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11v-5m0 0V9m9 2l-9-4-9 4"></path>
+            </svg>
+            Home
+        </a>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 

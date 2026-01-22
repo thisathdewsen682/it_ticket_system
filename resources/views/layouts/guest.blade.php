@@ -19,7 +19,7 @@
 <body class="font-sans text-slate-900 antialiased bg-slate-50">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-slate-50">
         <div class="text-center mb-8">
-            <a href="/" class="text-2xl font-bold">
+            <a href="{{ route('dashboard') }}" class="text-2xl font-bold">
                 <span class="text-blue-600">IT</span> Request System
             </a>
         </div>

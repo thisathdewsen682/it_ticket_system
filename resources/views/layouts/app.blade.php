@@ -39,9 +39,10 @@
         </main>
 
         <!-- Footer -->
-        <footer class="border-t border-slate-200 bg-white mt-auto">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-600">
-                © {{ date('Y') }} {{ config('app.name') }} — IT Request Management System
+        <footer class="bg-slate-900 mt-auto">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
+                <p class="text-white font-semibold mb-2">© {{ date('Y') }} {{ config('app.name') }}</p>
+                <p>IT Request Management System</p>
             </div>
         </footer>
     </div>
