@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Mail\TicketApprovalRequestMail;
 use App\Mail\TicketApprovedNotifyItManagerMail;
+use App\Mail\TicketReopenedByItManagerMail;
+use App\Mail\TicketReopenedByDeptManagerMail;
+use App\Mail\TicketItManagerConfirmedMail;
+use App\Mail\TicketDeptConfirmedNotifyRequesterMail;
+use App\Mail\TicketReopenedByRequesterMail;
 use App\Models\User;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
@@ -11,6 +16,7 @@ use App\Models\TicketStatusHistory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
@@ -266,6 +272,13 @@ class TicketController extends Controller
         $ticket->update(['status' => 'it_mgr_confirmed']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_mgr_confirmed');
 
+        // Notify department/section manager who approved the ticket
+        $ticket->loadMissing(['approvalUser', 'requester', 'itMember']);
+        $approver = $ticket->approvalUser;
+        if ($approver && $approver->email) {
+            Mail::to($approver->email)->queue(new TicketItManagerConfirmedMail($ticket));
+        }
+
         return back()->with('status', 'IT Manager confirmed completion.');
     }
 
@@ -283,6 +296,18 @@ class TicketController extends Controller
 
         $ticket->update(['status' => 'it_reopened']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+
+        // Notify the assigned IT member that the ticket was reopened
+        $ticket->loadMissing(['itMember', 'requester']);
+        if ($ticket->itMember && $ticket->itMember->email) {
+            Mail::to($ticket->itMember->email)->queue(
+                new TicketReopenedByItManagerMail($ticket, $validated['remark'])
+            );
+            Log::info('Queued reopen email for IT member', [
+                'ticket_id' => $ticket->id,
+                'recipient' => $ticket->itMember->email,
+            ]);
+        }
 
         return back()->with('status', 'Ticket reopened and returned to IT.');
     }
@@ -312,6 +337,16 @@ class TicketController extends Controller
             $to === 'requester_confirmed' ? 'Auto requester confirm (same user).' : null
         );
 
+        // Notify requester to review/confirm when department manager confirms
+        if ($to === 'dept_confirmed') {
+            $ticket->loadMissing(['requester', 'approvalUser', 'itMember']);
+            if ($ticket->requester && $ticket->requester->email) {
+                Mail::to($ticket->requester->email)->queue(
+                    new TicketDeptConfirmedNotifyRequesterMail($ticket)
+                );
+            }
+        }
+
         return back()->with('status', $to === 'requester_confirmed' ? 'Department + requester confirmed.' : 'Department confirmed.');
     }
 
@@ -333,6 +368,12 @@ class TicketController extends Controller
 
         $ticket->update(['status' => 'it_reopened']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+
+        // Notify IT Manager that the ticket was reopened and needs reassignment
+        $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
+        if ($itManager && $itManager->email) {
+            Mail::to($itManager->email)->queue(new TicketReopenedByDeptManagerMail($ticket->loadMissing(['requester', 'itMember']), $validated['remark']));
+        }
 
         return back()->with('status', 'Ticket reopened and returned to IT.');
     }
@@ -376,6 +417,15 @@ class TicketController extends Controller
         ]);
 
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+
+        // Notify IT Manager that the requester reopened the ticket
+        $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
+        if ($itManager && $itManager->email) {
+            $ticket->loadMissing(['requester', 'itMember', 'approvalUser']);
+            Mail::to($itManager->email)->queue(
+                new TicketReopenedByRequesterMail($ticket, $validated['remark'])
+            );
+        }
 
         return back()->with('status', 'Ticket reopened and sent back to IT.');
     }

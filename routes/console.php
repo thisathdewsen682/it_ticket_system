@@ -15,7 +15,14 @@ Schedule::command('tickets:send-approval-reminders')
     ->withoutOverlapping()
     ->onOneServer();
 
-// Schedule daily reminder emails for unassigned approved tickets
+// Schedule daily reminder emails to assigned IT members
+// Runs every day at 9:10 AM
+Schedule::command('tickets:send-assigned-reminder')
+    ->dailyAt('09:02')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// Schedule daily reminder emails for unassigned approvd tickets
 // Runs every day at 8:30 AM
 Schedule::command('tickets:send-unassigned-reminder')
     ->dailyAt('08:30')
