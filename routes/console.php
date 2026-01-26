@@ -85,10 +85,17 @@ Schedule::command('tickets:send-approval-confirmation-reminders')
     ->withoutOverlapping()
     ->onOneServer();
 
+// Schedule daily reminder to requesters to confirm or reopen approved tickets
+// Runs every day at 8:17 AM
+Schedule::command('tickets:send-requester-confirmation-reminders')
+    ->dailyAt('10:11')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // Schedule long-pending tickets reminder (5+ days in progress)
-// Runs every day at 8:16 AM
+// Runs every day at 8:18 AM
 Schedule::command('tickets:send-long-pending-reminder')
-    ->dailyAt('08:16')
+    ->dailyAt('08:18')
     ->withoutOverlapping()
     ->onOneServer();
 

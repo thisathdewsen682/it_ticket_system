@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\ApprovalConfirmationReminderMail;
 use App\Models\Ticket;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -41,20 +42,22 @@ class SendApprovalConfirmationReminders extends Command
             }
 
             try {
-                $ticketList = $tickets->map(function ($t) {
-                    return "- Ticket #{$t->id}: {$t->title} (Requester: {$t->requester?->name}) - Completed by: {$t->itMember?->name}";
-                })->implode("\n");
+                // Format ticket data for the mailable
+                $ticketData = $tickets->map(function ($t) {
+                    return [
+                        'id' => $t->id,
+                        'title' => $t->title,
+                        'category' => $t->category,
+                        'priority' => $t->priority,
+                        'requester_name' => $t->requester?->name,
+                        'it_member_name' => $t->itMember?->name,
+                    ];
+                })->toArray();
 
-                Mail::raw(
-                    "Hello {$approver->name},\n\n" .
-                    "This is a reminder that the following {$tickets->count()} ticket(s) have been completed by IT Manager and are waiting for your confirmation:\n\n" .
-                    $ticketList .
-                    "\n\nPlease review and confirm these tickets are resolved, or reopen them if more work is needed.",
-                    function ($message) use ($approver, $tickets) {
-                        $message->to($approver->email)
-                            ->subject("ACTION REQUIRED: {$tickets->count()} Ticket(s) Awaiting Your Confirmation");
-                    }
-                );
+                Mail::to($approver->email)->send(new ApprovalConfirmationReminderMail(
+                    $approver->name,
+                    $ticketData
+                ));
 
                 $this->info("Approver confirmation reminder sent to {$approver->name} for {$tickets->count()} ticket(s)");
                 $sent++;

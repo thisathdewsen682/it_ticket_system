@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\TicketApprovedNotifyItManagerMail;
+use App\Mail\TicketApprovedNotifyRequesterMail;
 use App\Models\Ticket;
 use App\Models\TicketStatusHistory;
 use App\Models\User;
@@ -76,6 +77,12 @@ class TicketApprovalLinkController extends Controller
             if ($itManager && $itManager->email) {
                 $ticket->loadMissing(['requester', 'approvalUser']);
                 Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+            }
+
+            // Notify Requester - Immediate email that ticket has been approved
+            if ($ticket->requester && $ticket->requester->email) {
+                $ticket->loadMissing(['requester', 'approvalUser', 'itMember']);
+                Mail::to($ticket->requester->email)->send(new TicketApprovedNotifyRequesterMail($ticket));
             }
 
             return view('tickets.approval_link_result', [
