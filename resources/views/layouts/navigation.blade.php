@@ -20,7 +20,7 @@
                 <div class="shrink-0 flex items-center">
                     <a href="{{ $dashboardUrl }}">
                         <div class="text-xl font-bold text-slate-900 leading-tight hover:text-blue-600 transition-colors">
-                            <span class="text-blue-600">IT</span> Request System
+                            <span class="text-blue-600">IT</span> Job System
                         </div>
                     </a>
                 </div>

@@ -1,6 +1,6 @@
-# IT Ticket System - Complete Documentation
+# IT Job Management System - Complete Documentation
 
-Welcome! This folder contains all documentation for the IT Ticket System. Use this guide to find what you need.
+Welcome! This folder contains all documentation for the IT Job Management System. Use this guide to find what you need.
 
 ---
 

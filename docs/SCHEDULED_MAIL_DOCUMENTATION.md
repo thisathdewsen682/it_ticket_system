@@ -1,7 +1,7 @@
 # Complete Scheduled Mail System - Documentation
 
 ## Overview
-Your IT Ticket System now has **10 automated reminder emails** scheduled daily, ensuring all stakeholders stay informed about ticket progress.
+Your IT Job Management System now has **13+ automated reminder emails** scheduled daily, ensuring all stakeholders stay informed about job progress.
 
 ---
 

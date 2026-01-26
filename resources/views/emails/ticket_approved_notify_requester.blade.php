@@ -60,7 +60,7 @@
     </div>
 
     <div class="alert-box">
-        <strong>⏰ Action Required:</strong> <p>Please log in to the IT Ticket System to confirm this ticket is resolved or reopen it if more work is needed.</p>
+        <strong>⏰ Action Required:</strong> <p>Please log in to the IT Job Management System to confirm this job is resolved or reopen it if more work is needed.</p>
     </div>
 
     <div class="instructions-box">

@@ -1,7 +1,7 @@
-# IT Ticket System - Complete Maintenance & Monitoring Manual
+# IT Job Management System - Complete Maintenance & Monitoring Manual
 
 **Last Updated:** January 26, 2026  
-**System:** IT Ticket System with Automated Email Reminders  
+**System:** IT Job Management System with Automated Email Reminders  
 **Environment:** Live Production Server
 
 ---

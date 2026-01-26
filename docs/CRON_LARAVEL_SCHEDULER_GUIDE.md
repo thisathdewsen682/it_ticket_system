@@ -13,7 +13,7 @@
 │  CRON (Linux/Unix Scheduler)                                │
 │  Reads crontab file & triggers scheduled commands           │
 │  Current Job:                                               │
-│  * * * * * cd /var/www/html/it_ticket_system &&            │
+│  * * * * * cd /var/www/html/it_ticket_system &&             │
 │            php artisan schedule:run >> /dev/null 2>&1       │
 └──────────────────────┬──────────────────────────────────────┘
                        │
@@ -385,7 +385,7 @@ MAIL_PORT=587
 MAIL_USERNAME=your_username
 MAIL_PASSWORD=your_password
 MAIL_FROM_ADDRESS=noreply@example.com
-MAIL_FROM_NAME="IT Ticket System"
+MAIL_FROM_NAME="IT Job Management System"
 
 # Logging
 LOG_LEVEL=debug  # Set to 'debug' to see more details

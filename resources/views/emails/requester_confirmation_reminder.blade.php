@@ -17,7 +17,7 @@
     </p>
 
     <div class="alert-box">
-        <strong>⏰ Action Required:</strong> <p>Please confirm or reopen these tickets in the IT Ticket System.</p>
+        <strong>⏰ Action Required:</strong> <p>Please confirm or reopen these jobs in the IT Job Management System.</p>
     </div>
 
     @foreach($tickets as $index => $ticket)

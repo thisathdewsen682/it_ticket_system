@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>IT Request System - Home</title>
+    <title>IT JOB SYSTEM - Home</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -19,7 +19,7 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                     <a href="{{ url('/') }}" class="text-xl font-bold text-slate-900">
-                        <span class="text-blue-600">IT</span> Request System
+                        <span class="text-blue-600">IT</span> Job System
                     </a>
 
                     @if (Route::has('login'))
@@ -55,7 +55,7 @@
                     </div>
                     
                     <h1 class="text-5xl font-bold text-white sm:text-6xl">
-                        IT Request Management
+                        IT Job Management
                     </h1>
                     
                     <p class="mt-6 text-xl text-slate-300 max-w-3xl mx-auto">
@@ -139,7 +139,7 @@
             <div class="bg-slate-900 px-4 py-16 sm:px-6 lg:px-8">
                 <div class="mx-auto max-w-4xl text-center">
                     <h2 class="text-3xl font-bold text-white sm:text-4xl">Ready to get started?</h2>
-                    <p class="mt-4 text-lg text-slate-300">Join your organization's IT request management system today.</p>
+                    <p class="mt-4 text-lg text-slate-300">Join your organization's IT Job Management system today.</p>
                     
                     <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
                         @auth
@@ -187,7 +187,7 @@
                     </div>
                 </div>
                 <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-                    <p>© {{ date('Y') }} IT Request System. All rights reserved.</p>
+                    <p>© {{ date('Y') }} IT JOB SYSTEM. All rights reserved.</p>
                 </div>
             </div>
         </footer>

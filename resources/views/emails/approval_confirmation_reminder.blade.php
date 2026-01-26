@@ -63,6 +63,6 @@
         <p>1. Review each ticket completion
 2. Confirm if the work is acceptable
 3. Reopen the ticket if more work is needed
-4. Log in to the IT Ticket System to take action</p>
+4. Log in to the IT Job Management System to take action</p>
     </div>
 @endsection

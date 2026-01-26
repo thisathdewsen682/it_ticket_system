@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>IT Request System</title>
+    <title>IT JOB SYSTEM</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -41,7 +41,7 @@
         <footer class="bg-slate-900 mt-auto">
             <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
                 <p class="text-white font-semibold mb-2">© {{ date('Y') }} {{ config('app.name') }}</p>
-                <p>IT Request Management System</p>
+                <p>IT Job Management System</p>
             </div>
         </footer>
     </div>

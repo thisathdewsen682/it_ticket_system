@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ $title ?? 'IT Ticket System' }}</title>
+    <title>{{ $title ?? 'IT Job Management System' }}</title>
     <style>
         * {
             margin: 0;
@@ -227,7 +227,7 @@
         </div>
         
         <div class="email-footer">
-            <p><strong>IT Ticket System</strong></p>
+            <p><strong>IT Job Management System</strong></p>
             <p>This is an automated message. Please do not reply to this email.</p>
             <p style="margin-top: 16px; color: #9ca3af; font-size: 12px;">
                 © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.

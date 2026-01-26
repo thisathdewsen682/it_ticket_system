@@ -221,7 +221,7 @@ Ready to Deploy? YES ✅
                            SUCCESS! 🎉
 ================================================================================
 
-Your IT Ticket System now has COMPLETE AUTOMATED EMAIL REMINDERS.
+Your IT Job Management System now has COMPLETE AUTOMATED EMAIL REMINDERS.
 
 Every morning at 08:00 AM, the system will:
   • Remind approvers of pending approvals

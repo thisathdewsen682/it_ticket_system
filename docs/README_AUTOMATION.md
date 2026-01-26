@@ -1,4 +1,4 @@
-# IT Ticket System - Automated Email Reminders Documentation Index
+# IT Job Management System - Automated Email Reminders Documentation Index
 
 ## 📚 Complete Learning Path
 
@@ -316,5 +316,5 @@ When actions happen in the system:
 ---
 
 **Last Updated:** January 26, 2026
-**Created:** Fully automated IT Ticket System maintenance
+**Created:** Fully automated IT Job Management System maintenance
 **Version:** 1.0

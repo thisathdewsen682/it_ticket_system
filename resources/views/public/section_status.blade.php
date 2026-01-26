@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Job Status Tracker | IT Request System</title>
+	<title>Job Status Tracker | IT JOB SYSTEM</title>
 
 	<link rel="preconnect" href="https://fonts.bunny.net">
 	<link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
@@ -223,7 +223,7 @@
 		<!-- Footer -->
 		<footer class="border-t border-slate-200 bg-white px-4 py-8 sm:px-6 lg:px-8">
 			<div class="mx-auto max-w-7xl text-center text-sm text-slate-600">
-				<p>© {{ date('Y') }} IT Request System. This is a public status feed. <a href="{{ url('/') }}" class="font-semibold text-blue-600 hover:text-blue-700">Go to home</a></p>
+				<p>© {{ date('Y') }} IT JOB SYSTEM. This is a public status feed. <a href="{{ url('/') }}" class="font-semibold text-blue-600 hover:text-blue-700">Go to home</a></p>
 			</div>
 		</footer>
 			</div>

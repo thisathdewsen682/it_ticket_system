@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'IT JOB REQUEST SYSTEM'),
+    'name' => env('APP_NAME', 'IT Job Management System'),
 
     /*
     |--------------------------------------------------------------------------
