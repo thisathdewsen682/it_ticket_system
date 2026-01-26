@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'IT Request System') }}</title>
+    <title>{{ config('app.name', 'IT Job System') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -19,7 +19,7 @@
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-slate-50">
         <div class="text-center mb-8">
             <a href="{{ route('dashboard') }}" class="text-2xl font-bold">
-                <span class="text-blue-600">IT</span> Request System
+                <span class="text-blue-600">IT</span> Job System
             </a>
         </div>
 

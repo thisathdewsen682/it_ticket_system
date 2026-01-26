@@ -19,7 +19,7 @@
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="flex h-16 items-center justify-between">
 					<a href="{{ url('/') }}" class="text-xl font-bold text-slate-900">
-						<span class="text-blue-600">IT</span> Request System
+						<span class="text-blue-600">IT</span> Job System
 					</a>
 
 					<nav class="flex items-center gap-4">

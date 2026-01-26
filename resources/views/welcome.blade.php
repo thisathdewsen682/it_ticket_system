@@ -167,7 +167,7 @@
             <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     <div>
-                        <h3 class="text-white font-semibold mb-3"><span class="text-blue-400">IT</span> Request System</h3>
+                        <h3 class="text-white font-semibold mb-3"><span class="text-blue-400">IT</span> Job System</h3>
                         <p class="text-slate-400 text-sm">Streamline IT operations with an intelligent request management platform.</p>
                     </div>
                     <div>
