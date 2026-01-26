@@ -39,7 +39,14 @@ Schedule::command('tickets:send-assigned-reminder')
 // Schedule daily reminder emails for IT Manager confirmations
 // Runs every day at 8:06 AM
 Schedule::command('tickets:send-it-manager-reminders')
-    ->dailyAt('09:45')
+    ->dailyAt('08:06')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// Schedule daily reminder emails to approvers about confirmed tickets
+// Runs every day at 8:07 AM
+Schedule::command('tickets:send-approver-confirmation-reminders')
+    ->dailyAt('08:07')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -68,6 +75,13 @@ Schedule::command('tickets:send-overdue-alerts')
 // Runs every day at 8:14 AM
 Schedule::command('tickets:send-completion-confirmations')
     ->dailyAt('08:14')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// Schedule daily reminder to approvers to confirm completed tickets
+// Runs every day at 8:15 AM
+Schedule::command('tickets:send-approval-confirmation-reminders')
+    ->dailyAt('08:15')
     ->withoutOverlapping()
     ->onOneServer();
 
