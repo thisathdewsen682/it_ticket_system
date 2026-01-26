@@ -51,7 +51,7 @@
                 <div class="mx-auto max-w-7xl text-center">
                     <div class="inline-flex items-center gap-2 rounded-full bg-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-400 mb-6">
                         <span class="inline-block h-2 w-2 rounded-full bg-blue-500"></span>
-                        Enterprise Solution
+                        
                     </div>
                     
                     <h1 class="text-5xl font-bold text-white sm:text-6xl">
