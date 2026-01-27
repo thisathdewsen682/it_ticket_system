@@ -58,7 +58,7 @@ class SendPendingApprovalReminders extends Command
             try {
                 $approveUrl = TicketApprovalReminderMail::buildApproveUrl($ticket);
                 $rejectUrl = TicketApprovalReminderMail::buildRejectUrl($ticket);
-                $cutoff = TicketApprovalReminderMail::approvalCutoff($ticket)->format('F j, Y g:i A');
+                $cutoff = TicketApprovalReminderMail::approvalCutoff($ticket);
 
                 Mail::to($ticket->approvalUser->email)->send(
                     new TicketApprovalReminderMail($ticket, $approveUrl, $rejectUrl, $cutoff)

@@ -19,7 +19,7 @@ class TicketApprovalReminderMail extends Mailable implements ShouldQueue
         public Ticket $ticket,
         public string $approveUrl,
         public string $rejectUrl,
-        public string $cutoff,
+        public \DateTimeInterface $cutoff,
     ) {
     }
 
@@ -34,6 +34,12 @@ class TicketApprovalReminderMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.tickets.approval_reminder',
+            with: [
+                'ticket' => $this->ticket,
+                'approveUrl' => $this->approveUrl,
+                'rejectUrl' => $this->rejectUrl,
+                'approvalCutoff' => $this->cutoff,
+            ],
         );
     }
 

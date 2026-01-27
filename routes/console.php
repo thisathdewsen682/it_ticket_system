@@ -25,7 +25,7 @@ Schedule::command('tickets:send-unassigned-deadline-warning')
 // Schedule daily reminder emails for pending approvals
 // Runs every day at 8:02 AM
 Schedule::command('tickets:send-approval-reminders')
-    ->dailyAt('08:02')
+    ->dailyAt('13:41')
     ->withoutOverlapping()
     ->onOneServer();
 
