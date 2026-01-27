@@ -31,6 +31,10 @@ class ApprovalConfirmationReminderMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.approval_confirmation_reminder',
+            with: [
+                'approverName' => $this->approverName,
+                'tickets' => $this->tickets,
+            ],
         );
     }
 

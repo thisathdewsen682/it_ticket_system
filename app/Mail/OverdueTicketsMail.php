@@ -29,6 +29,9 @@ class OverdueTicketsMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.overdue_tickets_alert',
+            with: [
+                'tickets' => $this->tickets,
+            ],
         );
     }
 

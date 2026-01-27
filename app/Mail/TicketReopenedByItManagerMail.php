@@ -31,6 +31,10 @@ class TicketReopenedByItManagerMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket_reopened_by_it_manager',
+            with: [
+                'ticket' => $this->ticket,
+                'remark' => $this->remark,
+            ],
         );
     }
 

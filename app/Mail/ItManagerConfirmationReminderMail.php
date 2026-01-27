@@ -30,6 +30,9 @@ class ItManagerConfirmationReminderMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.it_manager_confirmation_reminder',
+            with: [
+                'ticket' => $this->ticket,
+            ],
         );
     }
 

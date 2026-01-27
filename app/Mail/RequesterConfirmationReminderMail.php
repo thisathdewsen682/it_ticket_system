@@ -31,6 +31,10 @@ class RequesterConfirmationReminderMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.requester_confirmation_reminder',
+            with: [
+                'requesterName' => $this->requesterName,
+                'tickets' => $this->tickets,
+            ],
         );
     }
 

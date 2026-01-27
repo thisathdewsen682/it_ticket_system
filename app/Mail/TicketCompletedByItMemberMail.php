@@ -30,6 +30,9 @@ class TicketCompletedByItMemberMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket_completed_by_it_member',
+            with: [
+                'ticket' => $this->ticket,
+            ],
         );
     }
 

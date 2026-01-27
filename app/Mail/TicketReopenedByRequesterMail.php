@@ -29,6 +29,10 @@ class TicketReopenedByRequesterMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket_reopened_by_requester',
+            with: [
+                'ticket' => $this->ticket,
+                'remark' => $this->remark,
+            ],
         );
     }
 

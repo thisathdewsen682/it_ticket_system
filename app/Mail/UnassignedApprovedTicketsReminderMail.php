@@ -30,6 +30,9 @@ class UnassignedApprovedTicketsReminderMail extends Mailable implements ShouldQu
     {
         return new Content(
             view: 'emails.unassigned_approved_tickets_reminder',
+            with: [
+                'tickets' => $this->tickets,
+            ],
         );
     }
 
