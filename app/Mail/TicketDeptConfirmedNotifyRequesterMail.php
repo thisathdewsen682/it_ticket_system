@@ -29,9 +29,6 @@ class TicketDeptConfirmedNotifyRequesterMail extends Mailable implements ShouldQ
     {
         return new Content(
             view: 'emails.ticket_dept_confirmed_notify_requester',
-            with: [
-                'ticket' => $this->ticket,
-            ],
         );
     }
 

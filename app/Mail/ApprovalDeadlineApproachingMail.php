@@ -31,10 +31,6 @@ class ApprovalDeadlineApproachingMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.approval_deadline_approaching',
-            with: [
-                'ticket' => $this->ticket,
-                'daysRemaining' => $this->daysRemaining,
-            ],
         );
     }
 

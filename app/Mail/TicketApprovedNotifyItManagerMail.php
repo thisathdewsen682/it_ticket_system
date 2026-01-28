@@ -30,9 +30,6 @@ class TicketApprovedNotifyItManagerMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket_approved_notify_it_manager',
-            with: [
-                'ticket' => $this->ticket,
-            ],
         );
     }
 

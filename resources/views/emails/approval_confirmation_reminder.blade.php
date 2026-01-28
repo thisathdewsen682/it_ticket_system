@@ -12,6 +12,10 @@
         This is a <strong>reminder</strong> that the following {{ count($tickets) }} ticket(s) have been completed by the IT Manager and are awaiting your confirmation. Please review and take action soon.
     </p>
 
+    <p class="message">
+        Please <strong>confirm the completion</strong> or <strong>reopen</strong> if additional work is needed.
+    </p>
+
     <div class="alert-box">
         <strong>⏰ Action Required:</strong> <p>Please confirm or reopen these tickets as needed.</p>
     </div>
@@ -65,4 +69,14 @@
 3. Reopen the ticket if more work is needed
 4. Log in to the IT Job Management System to take action</p>
     </div>
+
+    <div class="button-container">
+        <a href="{{ url('/dashboard/manager') }}" class="button button-primary">Go to Manager Dashboard</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; color: #6b7280; font-size: 14px;">
+        Thank you for keeping tickets moving. Your confirmation helps close requests quickly.
+    </p>
 @endsection

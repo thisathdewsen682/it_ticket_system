@@ -11,7 +11,7 @@ Artisan::command('inspire', function () {
 // Schedule daily reminder emails for unassigned approved tickets
 // Runs every day at 8:00 AM
 Schedule::command('tickets:send-unassigned-reminder')
-    ->dailyAt('08:00')
+    ->dailyAt('15:39')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -25,21 +25,21 @@ Schedule::command('tickets:send-unassigned-deadline-warning')
 // Schedule daily reminder emails for pending approvals
 // Runs every day at 8:02 AM
 Schedule::command('tickets:send-approval-reminders')
-    ->dailyAt('13:41')
+    ->dailyAt('08:02')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails to assigned IT members
 // Runs every day at 8:04 AM
 Schedule::command('tickets:send-assigned-reminder')
-    ->dailyAt('08:04')
+    ->dailyAt('15:37')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails for IT Manager confirmations
 // Runs every day at 8:06 AM
 Schedule::command('tickets:send-it-manager-reminders')
-    ->dailyAt('08:06')
+    ->dailyAt('14:24')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -74,7 +74,7 @@ Schedule::command('tickets:send-overdue-alerts')
 // Schedule completion confirmations to requesters
 // Runs every day at 8:14 AM
 Schedule::command('tickets:send-completion-confirmations')
-    ->dailyAt('08:14')
+    ->dailyAt('15:21')
     ->withoutOverlapping()
     ->onOneServer();
 

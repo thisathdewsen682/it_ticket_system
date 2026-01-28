@@ -20,7 +20,7 @@ class SendUnassignedTicketDeadlineWarning extends Command
         // Get approved tickets with deadline in 2 days that haven't been assigned to IT member
         $tickets = Ticket::query()
             ->with(['requester', 'approvalUser'])
-            ->whereIn('status', ['dept_approved'])
+            ->whereIn('status', ['dept_approved', 'dept_reopened'])
             ->whereNull('it_member_id')
             ->whereNotNull('needed_by')
             ->get()

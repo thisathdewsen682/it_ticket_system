@@ -29,9 +29,6 @@ class WeeklySummaryMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.weekly_summary',
-            with: [
-                'summary' => $this->summary,
-            ],
         );
     }
 

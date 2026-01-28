@@ -31,10 +31,6 @@ class SLADeadlineWarningMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.sla_deadline_warning',
-            with: [
-                'ticket' => $this->ticket,
-                'daysRemaining' => $this->daysRemaining,
-            ],
         );
     }
 

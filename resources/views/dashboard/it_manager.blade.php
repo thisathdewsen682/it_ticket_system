@@ -232,6 +232,8 @@
                                                                                             'dept_approved' => 'Dept Approved',
                                                                                             'it_assigned' => 'IT Assigned',
                                                                                             'it_reopened' => 'Reopened (Back to IT)',
+                                                                                            'dept_reopened' => 'Reopened by Manager',
+                                                                                            'requester_reopened' => 'Reopened by Requester',
                                                                                             'it_in_progress' => 'In Progress',
                                                                                             'it_completed' => 'Completed (Awaiting IT Confirm)',
                                                                                             'it_mgr_confirmed' => 'IT Manager Confirmed',
@@ -266,7 +268,7 @@
                                                                                 <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                                                     {{ $ticket->created_at?->format('Y-m-d H:i') }}</td>
                                                                                 <td class="whitespace-nowrap px-4 py-3">
-                                                                                    @if (in_array($ticket->status, ['dept_approved', 'it_reopened'], true))
+                                                                                    @if (in_array($ticket->status, ['dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true))
                                                                                         <form method="POST" action="{{ route('tickets.assign', $ticket) }}"
                                                                                             class="flex flex-col items-end gap-2">
                                                                                             @csrf

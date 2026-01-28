@@ -22,7 +22,7 @@ class UnassignedApprovedTicketsReminderMail extends Mailable implements ShouldQu
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reminder: ' . $this->tickets->count() . ' Approved Tickets Awaiting Assignment',
+            subject: 'Reminder: ' . $this->tickets->count() . ' Tickets Awaiting Assignment/Reassignment',
         );
     }
 
@@ -30,9 +30,6 @@ class UnassignedApprovedTicketsReminderMail extends Mailable implements ShouldQu
     {
         return new Content(
             view: 'emails.unassigned_approved_tickets_reminder',
-            with: [
-                'tickets' => $this->tickets,
-            ],
         );
     }
 

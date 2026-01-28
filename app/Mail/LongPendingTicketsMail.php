@@ -29,9 +29,6 @@ class LongPendingTicketsMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.long_pending_tickets',
-            with: [
-                'tickets' => $this->tickets,
-            ],
         );
     }
 

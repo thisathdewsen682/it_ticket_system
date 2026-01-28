@@ -155,15 +155,17 @@
 												@php
 													$statusColors = [
 														'pending' => 'bg-yellow-100 text-yellow-800',
-														'manager_approved' => 'bg-blue-100 text-blue-800',
-														'assigned_to_it_member' => 'bg-purple-100 text-purple-800',
-														'in_progress' => 'bg-orange-100 text-orange-800',
-														'completed_by_it_member' => 'bg-green-100 text-green-800',
-														'approved_by_dept_manager' => 'bg-teal-100 text-teal-800',
-														'manager_confirmed' => 'bg-emerald-100 text-emerald-800',
-														'reopened_by_it_manager' => 'bg-red-100 text-red-800',
-														'reopened_by_requester' => 'bg-red-100 text-red-800',
-														'reopened_by_dept_manager' => 'bg-red-100 text-red-800',
+														'dept_approved' => 'bg-blue-100 text-blue-800',
+														'it_assigned' => 'bg-purple-100 text-purple-800',
+														'it_in_progress' => 'bg-orange-100 text-orange-800',
+														'it_completed' => 'bg-green-100 text-green-800',
+														'it_mgr_confirmed' => 'bg-emerald-100 text-emerald-800',
+														'dept_confirmed' => 'bg-teal-100 text-teal-800',
+														'requester_confirmed' => 'bg-green-100 text-green-800',
+														'dept_rejected' => 'bg-red-100 text-red-800',
+														'it_reopened' => 'bg-red-100 text-red-800',
+														'dept_reopened' => 'bg-red-100 text-red-800',
+														'requester_reopened' => 'bg-red-100 text-red-800',
 													];
 													$statusClass = $statusColors[$ticket->status] ?? 'bg-gray-100 text-gray-800';
 												@endphp

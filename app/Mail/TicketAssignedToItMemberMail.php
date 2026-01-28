@@ -30,9 +30,6 @@ class TicketAssignedToItMemberMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket_assigned_to_it_member',
-            with: [
-                'ticket' => $this->ticket,
-            ],
         );
     }
 

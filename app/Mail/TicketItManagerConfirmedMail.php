@@ -29,9 +29,6 @@ class TicketItManagerConfirmedMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket_it_manager_confirmed',
-            with: [
-                'ticket' => $this->ticket,
-            ],
         );
     }
 

@@ -149,7 +149,8 @@ Your system uses these ticket statuses:
 - `pending` - Awaiting approval
 - `dept_approved` - Approved, waiting IT assignment
 - `it_assigned` - Assigned to IT member
-- `it_reopened` - Reopened by requester
+- `it_reopened` - Reopened to IT (by IT manager or requester)
+- `dept_reopened` - Reopened by department/section manager
 - `it_completed` - Completed by IT, awaiting confirmation
 - `dept_confirmed` - Fully resolved
 

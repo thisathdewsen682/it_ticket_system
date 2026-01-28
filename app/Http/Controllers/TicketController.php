@@ -74,6 +74,8 @@ class TicketController extends Controller
             'dept_confirmed' => 'Department confirmed',
             'requester_confirmed' => 'Requester confirmed',
             'it_reopened' => 'Reopened to IT',
+            'dept_reopened' => 'Reopened by Manager',
+            'requester_reopened' => 'Reopened by Requester',
             'dept_rejected' => 'Rejected',
         ];
 
@@ -134,6 +136,8 @@ class TicketController extends Controller
             'dept_confirmed' => 'Department confirmed',
             'requester_confirmed' => 'Requester confirmed',
             'it_reopened' => 'Reopened to IT',
+            'dept_reopened' => 'Reopened by Manager',
+            'requester_reopened' => 'Reopened by Requester',
             'dept_rejected' => 'Rejected',
         ];
 
@@ -161,6 +165,8 @@ class TicketController extends Controller
                 'dept_approved',
                 'it_assigned',
                 'it_reopened',
+                'dept_reopened',
+                'requester_reopened',
                 'it_in_progress',
                 'it_completed',
                 'it_mgr_confirmed',
@@ -254,7 +260,7 @@ class TicketController extends Controller
 
     public function assignToItMember(Request $request, Ticket $ticket): RedirectResponse
     {
-        if (!in_array($ticket->status, ['dept_approved', 'approved', 'it_reopened'], true)) {
+        if (!in_array($ticket->status, ['dept_approved', 'approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true)) {
             return back()->withErrors(['it_member_id' => 'This ticket is not ready for IT assignment yet.']);
         }
 
@@ -450,8 +456,8 @@ class TicketController extends Controller
 
         $from = $ticket->status;
 
-        $ticket->update(['status' => 'it_reopened']);
-        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+        $ticket->update(['status' => 'dept_reopened']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_reopened', $validated['remark']);
 
         // Notify IT Manager that the ticket was reopened and needs reassignment
         $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
@@ -497,10 +503,10 @@ class TicketController extends Controller
         $from = $ticket->status;
 
         $ticket->update([
-            'status' => 'it_reopened',
+            'status' => 'requester_reopened',
         ]);
 
-        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_reopened', $validated['remark']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'requester_reopened', $validated['remark']);
 
         // Notify IT Manager that the requester reopened the ticket
         $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();

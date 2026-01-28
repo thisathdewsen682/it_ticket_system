@@ -214,6 +214,8 @@
                                                             'dept_rejected' => 'Dept Rejected',
                                                             'it_assigned' => 'IT Assigned',
                                                             'it_reopened' => 'Reopened by Requester',
+                                                               'dept_reopened' => 'Reopened by Manager',
+                                                            'requester_reopened' => 'Reopened by Requester',
                                                             'it_in_progress' => 'In Progress',
                                                             'it_completed' => 'IT Completed',
                                                             'it_mgr_confirmed' => 'Awaiting Dept Confirm',

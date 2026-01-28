@@ -2,18 +2,18 @@
 
 @section('header')
     <h1>⏰ Daily Reminder</h1>
-    <p>{{ $tickets->count() }} Approved Tickets Awaiting Assignment</p>
+    <p>{{ $tickets->count() }} Tickets Awaiting Assignment/Reassignment</p>
 @endsection
 
 @section('content')
     <p class="greeting">Good Morning <strong>IT Manager</strong>,</p>
 
     <p class="message">
-        You have <strong>{{ $tickets->count() }} approved ticket(s)</strong> that have not yet been assigned to IT members. Please review and assign them to ensure timely completion.
+        You have <strong>{{ $tickets->count() }} ticket(s)</strong> awaiting assignment or reassignment. Please review and assign an IT member to ensure timely completion.
     </p>
 
     <div class="info-card">
-        <h3>📋 Unassigned Approved Tickets</h3>
+        <h3>📋 Tickets Awaiting Assignment/Reassignment</h3>
         
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
             <thead>
@@ -45,7 +45,7 @@
     </div>
 
     <div class="alert-box">
-        <p><strong>⚠️ Action Required:</strong> These approved tickets need IT member assignment to begin work.</p>
+        <p><strong>⚠️ Action Required:</strong> These tickets need IT member assignment/reassignment to proceed.</p>
     </div>
 
     <div class="button-container">

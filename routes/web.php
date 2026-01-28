@@ -171,6 +171,8 @@ Route::middleware(['auth'])->group(function () {
                 'dept_approved',
                 'it_assigned',
                 'it_reopened',
+                'dept_reopened',
+                'requester_reopened',
                 'it_in_progress',
                 'it_completed',
                 'it_mgr_confirmed',
@@ -202,7 +204,7 @@ Route::middleware(['auth'])->group(function () {
             ->orderByDesc('id');
 
         $approvedTickets = (clone $baseQuery)
-            ->whereIn('status', ['dept_approved', 'it_reopened'])
+            ->whereIn('status', ['dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'])
             ->paginate(10, ['*'], 'approved_page')
             ->appends(['tab' => 'approved']);
 
@@ -240,8 +242,16 @@ Route::middleware(['auth'])->group(function () {
             ->paginate(10, ['*'], 'assigning_page')
             ->appends(['tab' => 'assigning']);
 
-        $reopenedTickets = (clone $baseQuery)
-            ->where('status', 'it_reopened')
+        $reopenedTickets = \App\Models\Ticket::query()
+            ->with(['requester:id,name', 'approvalUser:id,name', 'statusHistories.user:id,name', 'attachments'])
+            ->whereIn('status', ['it_reopened', 'dept_reopened', 'requester_reopened'])
+            ->where(function ($query) {
+                $query->where('it_member_id', auth()->id())
+                    ->orWhereHas('statusHistories', function ($history) {
+                        $history->where('user_id', auth()->id());
+                    });
+            })
+            ->orderByDesc('id')
             ->paginate(10, ['*'], 'reopened_page')
             ->appends(['tab' => 'reopened']);
 

@@ -20,7 +20,7 @@ class SendOverdueTicketsAlert extends Command
         // Get all overdue tickets
         $overdueTickets = Ticket::query()
             ->with(['requester', 'itMember', 'approvalUser'])
-            ->whereIn('status', ['pending', 'dept_approved', 'it_assigned', 'it_reopened', 'it_completed'])
+            ->whereIn('status', ['pending', 'dept_approved', 'it_assigned', 'it_reopened', 'dept_reopened', 'requester_reopened', 'it_completed'])
             ->whereNotNull('needed_by')
             ->where('needed_by', '<', now())
             ->orderBy('needed_by', 'asc')

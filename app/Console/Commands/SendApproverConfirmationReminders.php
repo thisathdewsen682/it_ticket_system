@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\ApprovalConfirmationReminderMail;
 use App\Models\Ticket;
-use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -14,11 +14,11 @@ class SendApproverConfirmationReminders extends Command
 
     public function handle(): int
     {
-        $this->info('Checking for confirmed tickets to notify approvers...');
+        $this->info('Checking for tickets pending approver confirmation...');
 
         // Get all unique approvers who have confirmed tickets
         $approversWithConfirmedTickets = Ticket::query()
-            ->with(['approvalUser:id,name,email', 'requester:id,name,email'])
+            ->with(['approvalUser:id,name,email', 'requester:id,name,email', 'itMember:id,name,email'])
             ->where('status', 'it_mgr_confirmed')
             ->whereNotNull('approval_user_id')
             ->whereHas('approvalUser', fn($q) => $q->whereNotNull('email'))
@@ -40,29 +40,30 @@ class SendApproverConfirmationReminders extends Command
             }
 
             try {
-                $ticketList = $tickets->map(function ($t) {
-                    return "- Ticket #{$t->id}: {$t->title} (Requester: {$t->requester?->name})";
-                })->implode("\n");
+                $ticketData = $tickets->map(function ($t) {
+                    return [
+                        'id' => $t->id,
+                        'title' => $t->title,
+                        'category' => $t->category,
+                        'priority' => $t->priority,
+                        'requester_name' => $t->requester?->name,
+                        'it_member_name' => $t->itMember?->name,
+                    ];
+                })->toArray();
 
-                Mail::raw(
-                    "Hello {$approver->name},\n\n" .
-                    "This is a reminder that {$tickets->count()} ticket(s) you approved have been confirmed completed by IT Manager:\n\n" .
-                    $ticketList .
-                    "\n\nThese tickets are now fully resolved.",
-                    function ($message) use ($approver, $tickets) {
-                        $message->to($approver->email)
-                            ->subject("Confirmation Reminder: {$tickets->count()} Ticket(s) Completed");
-                    }
-                );
+                Mail::to($approver->email)->send(new ApprovalConfirmationReminderMail(
+                    $approver->name,
+                    $ticketData
+                ));
 
-                $this->info("Approver reminder sent to {$approver->name} for {$tickets->count()} ticket(s)");
+                $this->info("Approver confirmation reminder sent to {$approver->name} for {$tickets->count()} ticket(s)");
                 $sent++;
             } catch (\Throwable $e) {
                 $this->error("Failed to send reminder to {$approver->name}: {$e->getMessage()}");
             }
         }
 
-        $this->info("Summary: {$sent} approver reminder(s) sent.");
+        $this->info("Summary: {$sent} approver confirmation reminder(s) sent.");
         return self::SUCCESS;
     }
 }

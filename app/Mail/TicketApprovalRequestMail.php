@@ -68,12 +68,6 @@ class TicketApprovalRequestMail extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.tickets.approval_request',
-            with: [
-                'ticket' => $this->ticket,
-                'approveUrl' => $this->approveUrl,
-                'rejectUrl' => $this->rejectUrl,
-                'approvalCutoff' => $this->approvalCutoff,
-            ],
         );
     }
 }

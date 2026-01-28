@@ -51,9 +51,9 @@ class SendWeeklySummary extends Command
                 'total' => Ticket::where('section_id', $sectionId)->count(),
                 'pending' => Ticket::where('section_id', $sectionId)->where('status', 'pending')->count(),
                 'approved' => Ticket::where('section_id', $sectionId)->where('status', 'dept_approved')->count(),
-                'in_progress' => Ticket::where('section_id', $sectionId)->whereIn('status', ['it_assigned', 'it_reopened'])->count(),
+                'in_progress' => Ticket::where('section_id', $sectionId)->whereIn('status', ['it_assigned', 'it_reopened', 'dept_reopened', 'requester_reopened'])->count(),
                 'completed' => Ticket::where('section_id', $sectionId)->where('status', 'dept_confirmed')->whereBetween('updated_at', [now()->subDays(7), now()])->count(),
-                'overdue' => Ticket::where('section_id', $sectionId)->whereIn('status', ['pending', 'dept_approved', 'it_assigned', 'it_reopened'])->where('needed_by', '<', now())->count(),
+                'overdue' => Ticket::where('section_id', $sectionId)->whereIn('status', ['pending', 'dept_approved', 'it_assigned', 'it_reopened', 'dept_reopened', 'requester_reopened'])->where('needed_by', '<', now())->count(),
             ];
 
             try {

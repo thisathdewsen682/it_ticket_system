@@ -212,6 +212,8 @@
                                                         $statusLabel = match ($statusValue) {
                                                             'it_assigned' => 'Assigned',
                                                             'it_reopened' => 'Reopened',
+                                                            'dept_reopened' => 'Reopened by Manager (Awaiting Reassignment)',
+                                                            'requester_reopened' => 'Reopened by Requester (Awaiting Reassignment)',
                                                             'it_in_progress' => 'In Progress',
                                                             'it_completed' => 'Completed (Awaiting IT Manager Confirm)',
                                                             'it_mgr_confirmed' => 'IT Manager Confirmed',
@@ -251,6 +253,8 @@
                                                                 Complete
                                                             </x-primary-button>
                                                         </form>
+                                                    @elseif (in_array($ticket->status, ['dept_reopened', 'requester_reopened'], true))
+                                                        <span class="text-sm font-semibold text-amber-700">Awaiting IT Manager reassignment</span>
                                                     @else
                                                         <span class="text-sm text-slate-700">{{ $ticket->status }}</span>
                                                     @endif
