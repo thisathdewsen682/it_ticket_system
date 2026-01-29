@@ -1,0 +1,30 @@
+Email queue inspection commands:
+
+php artisan queue:work
+php artisan queue:listen
+php artisan queue:failed
+php artisan queue:failed:show {id}
+php artisan queue:retry {id|all}
+php artisan queue:flush
+php artisan queue:monitor
+php artisan queue:restart
+Scheduler inspection:
+
+php artisan schedule:list
+php artisan schedule:run
+Ticket email commands to test:
+
+php artisan tickets:send-unassigned-reminder
+php artisan tickets:send-unassigned-deadline-warning
+php artisan tickets:send-approval-reminders
+php artisan tickets:send-assigned-reminder
+php artisan tickets:send-it-manager-reminders
+php artisan tickets:send-approver-confirmation-reminders
+php artisan tickets:send-approval-confirmation-reminders
+php artisan tickets:send-requester-confirmation-reminders
+php artisan tickets:send-sla-warnings
+php artisan tickets:send-approval-deadline-warnings
+php artisan tickets:send-overdue-alerts
+php artisan tickets:send-completion-confirmations
+php artisan tickets:send-long-pending-reminder
+php artisan tickets:send-weekly-summary

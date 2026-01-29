@@ -255,6 +255,13 @@ class TicketController extends Controller
         $ticket->update(['status' => 'dept_rejected']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_rejected', $validated['remark']);
 
+        $ticket->loadMissing(['requester', 'approvalUser']);
+        if ($ticket->requester && $ticket->requester->email) {
+            Mail::to($ticket->requester->email)->send(
+                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+            );
+        }
+
         return back()->with('status', 'Ticket rejected.');
     }
 

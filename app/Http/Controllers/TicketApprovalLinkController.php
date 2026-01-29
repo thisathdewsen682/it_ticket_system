@@ -96,6 +96,13 @@ class TicketApprovalLinkController extends Controller
         $ticket->update(['status' => 'dept_rejected']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_rejected', 'Rejected via email link.');
 
+        $ticket->loadMissing(['requester', 'approvalUser']);
+        if ($ticket->requester && $ticket->requester->email) {
+            Mail::to($ticket->requester->email)->send(
+                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, 'Rejected via email link.')
+            );
+        }
+
         return view('tickets.approval_link_result', [
             'ticket' => $ticket,
             'status' => 'rejected',
