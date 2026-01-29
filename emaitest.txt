@@ -28,3 +28,25 @@ php artisan tickets:send-overdue-alerts
 php artisan tickets:send-completion-confirmations
 php artisan tickets:send-long-pending-reminder
 php artisan tickets:send-weekly-summary
+
+
+cron job
+
+
+# 1. See all configured scheduled tasks
+php artisan schedule:list
+
+# 2. Check if cron service is running
+sudo systemctl status cron
+
+# 3. Verify the cron job is installed
+sudo crontab -u www-data -l
+
+# 4. View recent execution logs
+tail -f storage/logs/laravel.log
+
+# 5. Check system cron logs
+sudo grep CRON /var/log/syslog | tail -20
+
+# 6. Search for specific command executions
+tail -100 storage/logs/laravel.log | grep "approval-reminders"
