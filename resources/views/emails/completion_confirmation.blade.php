@@ -2,14 +2,21 @@
 
 @section('header')
     <h1>✅ Ticket Completed</h1>
-    <p>Confirmation Sent - Ticket #{{ $ticket->id }}</p>
+    <p>Job Confirmed Complete - Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
     <p class="greeting">Dear <strong>{{ $ticket->requester->name ?? 'Requester' }}</strong>,</p>
 
     <p class="message">
-        Your ticket has been confirmed as completed. If you need any further work on this request, please contact the IT team or reopen the ticket from your dashboard.
+        Your IT support ticket has been successfully completed and confirmed by the Department Manager.
+        @if($deptManager)
+        <strong>{{ $deptManager->name }}</strong> has verified that the work has been completed to satisfaction.
+        @endif
+    </p>
+    
+    <p class="message">
+        The job is now closed. If you need any further assistance or have concerns about this ticket, please contact your department manager or submit a new ticket.
     </p>
 
     <div class="info-card">
@@ -39,8 +46,15 @@
 
         @if($ticket->itMember)
         <div class="info-row">
-            <span class="info-label">IT Member:</span>
-            <span class="info-value">{{ $ticket->itMember->name }}</span>
+            <span class="info-label">Handled By:</span>
+            <span class="info-value">{{ $ticket->itMember->name }} (IT Member)</span>
+        </div>
+        @endif
+        
+        @if($deptManager)
+        <div class="info-row">
+            <span class="info-label">Confirmed By:</span>
+            <span class="info-value">{{ $deptManager->name }} ({{ $ticket->approvalUser->role->name ?? 'Department Manager' }})</span>
         </div>
         @endif
 
@@ -50,6 +64,11 @@
             <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
         </div>
         @endif
+        
+        <div class="info-row">
+            <span class="info-label">Completed On:</span>
+            <span class="info-value">{{ now()->format('F j, Y g:i A') }}</span>
+        </div>
     </div>
 
     <div class="button-container">

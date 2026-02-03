@@ -104,7 +104,7 @@
                                                     @endif
                                                 </button>
 
-                                                <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="2xl" focusable>
+                                                <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="6xl" focusable>
                                                     <div class="p-6">
                                                             <div class="w-full mx-auto sm:px-6 lg:px-8">
                                                             <div>

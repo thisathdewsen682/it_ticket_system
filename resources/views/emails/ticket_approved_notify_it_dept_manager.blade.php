@@ -1,45 +1,52 @@
-@extends('emails.layout', ['headerColor' => '#2563eb', 'headerColorDark' => '#1d4ed8', 'accentColor' => '#2563eb'])
+@extends('emails.layout', ['headerColor' => '#7c3aed', 'headerColorDark' => '#6d28d9', 'accentColor' => '#7c3aed'])
 
 @section('header')
-    <h1>✅ Job Completion Confirmed</h1>
-    <p>Ticket #{{ $ticket->id }}</p>
+    <h1>✅ Ticket Approved - Confirmation Required</h1>
+    <p>IT Department Manager Action Needed - Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
+    <p class="greeting">Hello <strong>IT Department Manager</strong>,</p>
 
     <p class="message">
-        The IT Manager and IT Department Manager have both confirmed completion of the ticket below. Please review and confirm if the job meets your requirements, or reopen if more work is needed.
+        A ticket has been approved by the department manager. As IT Department Manager, please review and confirm this ticket before it proceeds to the IT Manager for assignment.
     </p>
 
     <div class="info-card">
         <h3>📋 Ticket Details</h3>
+        
         <div class="info-row">
             <span class="info-label">Ticket ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
+
         <div class="info-row">
             <span class="info-label">Title:</span>
             <span class="info-value">{{ $ticket->title }}</span>
         </div>
+
         <div class="info-row">
             <span class="info-label">Category:</span>
             <span class="info-value">{{ $ticket->category }}</span>
         </div>
+
         <div class="info-row">
             <span class="info-label">Priority:</span>
             <span class="info-value">
                 <span class="badge badge-{{ strtolower($ticket->priority) }}">{{ $ticket->priority }}</span>
             </span>
         </div>
+
         <div class="info-row">
             <span class="info-label">Requester:</span>
             <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
         </div>
+
         <div class="info-row">
-            <span class="info-label">Completed By:</span>
-            <span class="info-value">{{ $ticket->itMember->name ?? 'IT Member' }}</span>
+            <span class="info-label">Approved By:</span>
+            <span class="info-value">{{ $ticket->approvalUser->name ?? 'N/A' }}</span>
         </div>
+
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
@@ -48,6 +55,7 @@
             </span>
         </div>
         @endif
+
         @if($ticket->description)
         <div class="info-row" style="display: block; border-bottom: none; padding-top: 15px;">
             <span class="info-label">Description:</span>
@@ -59,17 +67,16 @@
     </div>
 
     <div class="alert-box">
-        <p><strong>Next step:</strong> Please log in and confirm or reopen this ticket.</p>
+        <p><strong>⚠️ Action Required:</strong> Please confirm or reject this ticket. Once confirmed, it will be sent to the IT Manager for assignment.</p>
     </div>
 
     <div class="button-container">
-        <a href="{{ route('dashboard.manager') }}" class="button button-primary">Go to Manager Dashboard</a>
-        <a href="{{ route('tickets.show', $ticket) }}" class="button button-secondary">View Ticket #{{ $ticket->id }}</a>
+        <a href="{{ url('/dashboard/unified?role_tab=it-dept-manager&tab=pending') }}" class="button button-primary">Review Ticket</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can confirm or reopen this ticket from your dashboard.
+        Log in to your IT Department Manager dashboard to confirm or reject this ticket.
     </p>
 @endsection

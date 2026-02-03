@@ -80,7 +80,7 @@
                                                         #{{ $ticket->id }}
                                                     </button>
 
-                                                    <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="2xl" focusable>
+                                                    <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="6xl" focusable>
                                                         <div class="p-6">
                                                             <div class="flex items-start justify-between gap-4">
                                                                 <div>

@@ -22,7 +22,7 @@
         <!-- Page Heading -->
         @isset($header)
             <header class="border-b border-slate-200 bg-white shadow-sm">
-                <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div class="w-full max-w-none mx-auto py-8 px-4 sm:px-6 lg:px-8">
                     <div class="space-y-2">
                         {{ $header }}
                     </div>
@@ -32,14 +32,14 @@
 
         <!-- Page Content -->
         <main class="flex-1 px-4 py-8 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
+            <div class="w-full max-w-none mx-auto">
                 {{ $slot }}
             </div>
         </main>
 
         <!-- Footer -->
         <footer class="bg-slate-900 mt-auto">
-            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
+            <div class="w-full max-w-none mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
                 <p class="text-white font-semibold mb-2">© {{ date('Y') }} {{ config('app.name') }}</p>
                 <p>IT Job Management System</p>
             </div>

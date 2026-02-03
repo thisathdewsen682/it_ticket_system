@@ -24,8 +24,15 @@ Route::get('/ticket-approval/{ticket}/{action}', TicketApprovalLinkController::c
 
 
 Route::get('/dashboard', function (Request $request) {
-    $user = $request->user()?->load('role');
-
+    $user = $request->user()?->load('role', 'roles');
+    $userRoles = $user->getAllRoleNames();
+    
+    // If user has multiple roles, redirect to unified dashboard
+    if (count($userRoles) > 1) {
+        return redirect()->route('dashboard.unified');
+    }
+    
+    // Single role - redirect to role-specific dashboard
     return match ($user?->role?->name) {
         'employee' => redirect()->route('dashboard.employee'),
         'dept_manager', 'section_manager' => redirect()->route('dashboard.manager'),
@@ -34,6 +41,11 @@ Route::get('/dashboard', function (Request $request) {
         default => redirect()->route('tickets.index'),
     };
 })->middleware(['auth'])->name('dashboard');
+
+// Unified dashboard for users with multiple roles
+Route::get('/dashboard/unified', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard.unified');
 
 
 
@@ -119,9 +131,34 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:dept_manager,section_manager')
         ->name('tickets.reject');
 
+    Route::post('/approvals/{ticket}/confirm-completion', [TicketController::class, 'deptConfirmCompletion'])
+        ->middleware('role:dept_manager,section_manager')
+        ->name('tickets.dept_confirm_completion');
+
+    // IT Department Manager routes
+    Route::post('/it-dept-manager/tickets/{ticket}/confirm', [TicketController::class, 'itDeptManagerConfirm'])
+        ->middleware('role:it-dept-manager')
+        ->name('tickets.it_dept_manager_confirm');
+
+    Route::post('/it-dept-manager/tickets/{ticket}/reject', [TicketController::class, 'itDeptManagerReject'])
+        ->middleware('role:it-dept-manager')
+        ->name('tickets.it_dept_manager_reject');
+
+    Route::post('/it-dept-manager/tickets/{ticket}/confirm-completion', [TicketController::class, 'itDeptManagerConfirmCompletion'])
+        ->middleware('role:it-dept-manager')
+        ->name('tickets.it_dept_manager_confirm_completion');
+
+    Route::post('/it-dept-manager/tickets/{ticket}/reopen-completion', [TicketController::class, 'itDeptManagerReopenCompletion'])
+        ->middleware('role:it-dept-manager')
+        ->name('tickets.it_dept_manager_reopen_completion');
+
     Route::post('/it-manager/tickets/{ticket}/assign', [TicketController::class, 'assignToItMember'])
         ->middleware('role:it_manager')
         ->name('tickets.assign');
+
+    Route::post('/it-manager/tickets/{ticket}/reject', [TicketController::class, 'itManagerReject'])
+        ->middleware('role:it_manager')
+        ->name('tickets.it_manager_reject');
 
     Route::post('/it-manager/tickets/{ticket}/confirm', [TicketController::class, 'itManagerConfirm'])
         ->middleware('role:it_manager')
@@ -204,7 +241,7 @@ Route::middleware(['auth'])->group(function () {
             ->orderByDesc('id');
 
         $approvedTickets = (clone $baseQuery)
-            ->whereIn('status', ['dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'])
+            ->whereIn('status', ['it_dept_approved', 'it_dept_reopened_completion'])
             ->paginate(10, ['*'], 'approved_page')
             ->appends(['tab' => 'approved']);
 

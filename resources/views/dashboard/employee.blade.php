@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="py-12 pb-24">
-        <div class="max-w-screen-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Success Message --}}
             @if (session('status'))
@@ -67,6 +67,31 @@
                                         <option value="{{ $cat }}" @selected(old('category') === $cat)>{{ $cat }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+
+                            {{-- Actual Job Requestor Name (Optional) --}}
+                            <div>
+                                <label class="block font-semibold text-slate-900 mb-2" for="actual_requester_name">
+                                    Actual Job Requestor Name
+                                    <span class="text-xs text-slate-500 font-normal">(Optional - if requesting for someone else)</span>
+                                </label>
+                                <input type="text" name="actual_requester_name" id="actual_requester_name" 
+                                    value="{{ old('actual_requester_name') }}"
+                                    placeholder="Leave blank if this is for you"
+                                    class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            {{-- Actual Job Requestor Email (Optional) --}}
+                            <div>
+                                <label class="block font-semibold text-slate-900 mb-2" for="actual_requester_email">
+                                    Actual Job Requestor Email
+                                    <span class="text-xs text-slate-500 font-normal">(Optional - if requesting for someone else)</span>
+                                </label>
+                                <input type="email" name="actual_requester_email" id="actual_requester_email" 
+                                    value="{{ old('actual_requester_email') }}"
+                                    placeholder="Leave blank if this is for you"
+                                    class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-xs text-slate-600">This person will receive notifications about the ticket</p>
                             </div>
 
                             {{-- Priority --}}

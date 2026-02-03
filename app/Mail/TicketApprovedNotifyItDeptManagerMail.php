@@ -10,41 +10,26 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CompletionConfirmationMail extends Mailable implements ShouldQueue
+class TicketApprovedNotifyItDeptManagerMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $backoff = 5;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries = 3;
-
     public function __construct(
         public Ticket $ticket,
-        public $deptManager = null,
     ) {
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Ticket has been Completed - #' . $this->ticket->id,
+            subject: 'New Approved Ticket - Confirmation Required #' . $this->ticket->id,
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.completion_confirmation',
+            view: 'emails.ticket_approved_notify_it_dept_manager',
         );
     }
 

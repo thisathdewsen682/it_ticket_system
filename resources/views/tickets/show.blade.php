@@ -26,9 +26,21 @@
                             <div class="font-medium">{{ $ticket->status }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-slate-600">Requester</div>
+                            <div class="text-sm text-slate-600">Submitted By</div>
                             <div class="font-medium">{{ $ticket->requester?->name ?? '-' }}</div>
                         </div>
+                        @if($ticket->actual_requester_name || $ticket->actual_requester_email)
+                        <div class="col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="text-sm font-semibold text-blue-900 mb-1">Actual Job Requestor:</div>
+                            <div class="text-sm text-blue-800">
+                                <strong>{{ $ticket->actual_requester_name ?? 'N/A' }}</strong>
+                                @if($ticket->actual_requester_email)
+                                    <br>
+                                    <span class="text-xs">{{ $ticket->actual_requester_email }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
                         <div>
                             <div class="text-sm text-slate-600">IT Member</div>
                             <div class="font-medium">{{ $ticket->itMember?->name ?? '-' }}</div>

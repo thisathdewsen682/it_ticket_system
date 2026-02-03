@@ -50,9 +50,87 @@ class User extends Authenticatable
         ];
     }
 
-
+    // Primary role relationship (backward compatibility)
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    // Many-to-many roles relationship
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user')
+            ->withPivot('section_id')
+            ->withTimestamps();
+    }
+
+    // Helper methods for role checking
+    
+    /**
+     * Check if user has a specific role (by name)
+     */
+    public function hasRole(string $roleName): bool
+    {
+        // Check primary role first
+        if ($this->role && $this->role->name === $roleName) {
+            return true;
+        }
+        
+        // Check additional roles
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * Check if user has a specific role for a specific section
+     */
+    public function hasRoleInSection(string $roleName, int $sectionId): bool
+    {
+        return $this->roles()
+            ->where('name', $roleName)
+            ->wherePivot('section_id', $sectionId)
+            ->exists();
+    }
+
+    /**
+     * Check if user has any of the given roles
+     */
+    public function hasAnyRole(array $roleNames): bool
+    {
+        // Check primary role
+        if ($this->role && in_array($this->role->name, $roleNames)) {
+            return true;
+        }
+        
+        // Check additional roles
+        return $this->roles()->whereIn('name', $roleNames)->exists();
+    }
+
+    /**
+     * Get all sections where user has a specific role
+     */
+    public function getSectionsForRole(string $roleName): \Illuminate\Support\Collection
+    {
+        return $this->roles()
+            ->where('name', $roleName)
+            ->whereNotNull('role_user.section_id')
+            ->get()
+            ->pluck('pivot.section_id')
+            ->unique();
+    }
+
+    /**
+     * Get all role names (including primary and additional)
+     */
+    public function getAllRoleNames(): array
+    {
+        $roleNames = [];
+        
+        if ($this->role) {
+            $roleNames[] = $this->role->name;
+        }
+        
+        $additionalRoles = $this->roles->pluck('name')->toArray();
+        
+        return array_unique(array_merge($roleNames, $additionalRoles));
     }
 }

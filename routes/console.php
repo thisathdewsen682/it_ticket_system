@@ -145,7 +145,7 @@ Schedule::command('tickets:send-approval-reminders')
 // Schedule daily reminder emails for unassigned approved tickets
 // Runs every day at 8:00 AM
 Schedule::command('tickets:send-unassigned-reminder')
-    ->dailyAt('08:03')
+    ->dailyAt('08:05')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -153,21 +153,21 @@ Schedule::command('tickets:send-unassigned-reminder')
     // Schedule daily reminder emails to assigned IT members
 // Runs every day at 8:04 AM
 Schedule::command('tickets:send-assigned-reminder')
-    ->dailyAt('08:05')
+    ->dailyAt('08:10')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails for IT Manager confirmations
 // Runs every day at 8:06 AM
 Schedule::command('tickets:send-it-manager-reminders')
-    ->dailyAt('08:07')
+    ->dailyAt('08:15')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails to approvers about confirmed tickets
 // Runs every day at 8:07 AM
 Schedule::command('tickets:send-approver-confirmation-reminders')
-    ->dailyAt('08:09')
+    ->dailyAt('08:20')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -176,7 +176,7 @@ Schedule::command('tickets:send-approver-confirmation-reminders')
     // Schedule completion confirmations to requesters
 // Runs every day at 8:14 AM
 Schedule::command('tickets:send-completion-confirmations')
-    ->dailyAt('08:12')
+    ->dailyAt('08:25')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -184,7 +184,7 @@ Schedule::command('tickets:send-completion-confirmations')
 // Schedule deadline warning for unassigned approved tickets (2 days before deadline)
 // Runs every day at 8:01 AM
 Schedule::command('tickets:send-unassigned-deadline-warning')
-    ->dailyAt('08:15')
+    ->dailyAt('08:30')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -192,21 +192,21 @@ Schedule::command('tickets:send-unassigned-deadline-warning')
 // Schedule SLA deadline warnings (2 days before deadline)
 // Runs every day at 8:08 AM
 Schedule::command('tickets:send-sla-warnings')
-    ->dailyAt('08:17')
+    ->dailyAt('08:35')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule approval deadline warnings (2 days before deadline)
 // Runs every day at 8:10 AM
 Schedule::command('tickets:send-approval-deadline-warnings')
-    ->dailyAt('08:19')
+    ->dailyAt('08:40')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule overdue tickets alert
 // Runs every day at 8:12 AM
 Schedule::command('tickets:send-overdue-alerts')
-    ->dailyAt('08:21')
+    ->dailyAt('08:45')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -233,13 +233,13 @@ Schedule::command('tickets:send-overdue-alerts')
 // Schedule long-pending tickets reminder (5+ days in progress)
 // Runs every day at 8:18 AM
 Schedule::command('tickets:send-long-pending-reminder')
-    ->dailyAt('08:27')
+    ->dailyAt('08:50')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule weekly summary to department managers
 // Runs every Friday at 8:30 AM
 Schedule::command('tickets:send-weekly-summary')
-    ->weeklyOn(5, '08:30')
+    ->weeklyOn(5, '08:55')
     ->withoutOverlapping()
     ->onOneServer();

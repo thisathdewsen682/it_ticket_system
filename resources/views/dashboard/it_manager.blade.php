@@ -8,7 +8,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-screen-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
 
             @if (session('status'))
                 <div class="mb-4 rounded-md border border-green-200 bg-green-50 p-4 text-green-800">
@@ -118,7 +118,7 @@
                                                                                         #{{ $ticket->id }}
                                                                                     </button>
 
-                                                                                    <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="2xl" focusable>
+                                                                                    <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="6xl" focusable>
                                                                                         <div class="p-6">
                                                                                             <div class="flex items-start justify-between gap-4">
                                                                                                 <div>
@@ -268,7 +268,7 @@
                                                                                 <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                                                     {{ $ticket->created_at?->format('Y-m-d H:i') }}</td>
                                                                                 <td class="whitespace-nowrap px-4 py-3">
-                                                                                    @if (in_array($ticket->status, ['dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true))
+                                                                                    @if (in_array($ticket->status, ['it_dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true))
                                                                                         <form method="POST" action="{{ route('tickets.assign', $ticket) }}"
                                                                                             class="flex flex-col items-end gap-2">
                                                                                             @csrf
@@ -297,6 +297,12 @@
                                                                                                 Assign
                                                                                             </x-primary-button>
                                                                                         </form>
+                                                                                        <button 
+                                                                                            onclick="openRejectModal({{ $ticket->id }})" 
+                                                                                            type="button"
+                                                                                            class="mt-2 inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                                                            Reject
+                                                                                        </button>
                                                                                     @elseif ($ticket->status === 'it_completed')
                                                                                         <div class="flex flex-col items-end gap-2">
                                                                                             <form method="POST" action="{{ route('tickets.it_manager_confirm', $ticket) }}" class="flex justify-end">

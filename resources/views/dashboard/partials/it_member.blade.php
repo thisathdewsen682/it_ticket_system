@@ -1,0 +1,79 @@
+{{-- IT Member Dashboard Partial --}}
+<div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
+    <div class="p-8 text-gray-900">
+        <div class="mb-6 text-sm text-slate-700 font-medium bg-slate-50 border border-slate-200 rounded-lg p-4">
+            Manage your assigned IT tickets.
+        </div>
+
+        @php
+            $tab = request('tab', 'assigning');
+            $tickets = match ($tab) {
+                'reopened' => $reopenedTickets ?? collect(),
+                'completed' => $completedTickets ?? collect(),
+                'confirmed' => $confirmedTickets ?? collect(),
+                default => $assigningTickets ?? collect(),
+            };
+            $role_tab = request('role_tab');
+        @endphp
+
+        <div class="mb-6 flex flex-wrap items-center gap-2">
+            <a href="{{ route('dashboard.unified', ['tab' => 'assigning', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'assigning' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Assigning
+            </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'reopened', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'reopened' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Reopened
+            </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'completed', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'completed' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Completed
+            </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'confirmed', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'confirmed' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Confirmed
+            </a>
+        </div>
+
+        @if (!isset($tickets) || $tickets->count() === 0)
+            <div class="text-sm text-slate-600">No tickets found.</div>
+        @else
+            <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-900 uppercase">ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-900 uppercase">Requester</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-900 uppercase">Title</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-900 uppercase">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-900 uppercase">Due Date</th>
+                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-900 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            @foreach ($tickets as $ticket)
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-4 py-3 text-sm font-semibold">#{{ $ticket->id }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ $ticket->requester?->name ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ $ticket->title }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ $ticket->status }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ $ticket->needed_by?->format('Y-m-d') ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-right">
+                                        @if (in_array($ticket->status, ['it_assigned', 'it_in_progress']))
+                                            <form method="POST" action="{{ route('tickets.it_complete', $ticket) }}" class="inline">
+                                                @csrf
+                                                <x-primary-button>Mark Complete</x-primary-button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-4">{{ $tickets->links() }}</div>
+        @endif
+    </div>
+</div>

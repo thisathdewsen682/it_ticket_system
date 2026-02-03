@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-screen-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
                 <div class="p-8 text-gray-900">
                     <div
@@ -99,7 +99,7 @@
                                                         #{{ $ticket->id }}
                                                     </button>
 
-                                                    <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="2xl" focusable>
+                                                    <x-modal name="ticket-history-{{ $ticket->id }}" maxWidth="6xl" focusable>
                                                         <div class="p-6">
                                                             <div class="flex items-start justify-between gap-4">
                                                                 <div>

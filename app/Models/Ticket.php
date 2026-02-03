@@ -8,6 +8,8 @@ class Ticket extends Model
 {
     protected $fillable = [
         'requester_id',
+        'actual_requester_name',
+        'actual_requester_email',
         'approval_user_id',
         'it_member_id',
         'title',

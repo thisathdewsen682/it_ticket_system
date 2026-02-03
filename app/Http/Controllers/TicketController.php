@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\TicketApprovalRequestMail;
 use App\Mail\TicketApprovedNotifyItManagerMail;
+use App\Mail\TicketApprovedNotifyItDeptManagerMail;
 use App\Mail\TicketReopenedByItManagerMail;
 use App\Mail\TicketReopenedByDeptManagerMail;
 use App\Mail\TicketItManagerConfirmedMail;
@@ -218,17 +219,22 @@ class TicketController extends Controller
         $ticket->update(['status' => 'dept_approved']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_approved');
 
-        // Send notification to IT Manager
-        $itManager = User::whereHas('role', function ($query) {
-            $query->where('name', 'it_manager');
-        })->first();
+        // Send notification to IT Dept Manager
+        $itDeptManager = User::query()
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'it-dept-manager');
+            })
+            ->orWhereHas('role', function ($query) {
+                $query->where('name', 'it-dept-manager');
+            })
+            ->first();
 
-        if ($itManager) {
+        if ($itDeptManager) {
             $ticket->load(['requester', 'approvalUser']);
-            Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+            Mail::to($itDeptManager->email)->send(new TicketApprovedNotifyItDeptManagerMail($ticket));
         }
 
-        return back()->with('status', 'Ticket approved.');
+        return back()->with('status', 'Ticket approved and sent to IT Department Manager.');
     }
 
     public function reject(Request $request, Ticket $ticket): RedirectResponse
@@ -265,9 +271,139 @@ class TicketController extends Controller
         return back()->with('status', 'Ticket rejected.');
     }
 
+    // Department/Section Manager confirms job completion
+    public function deptConfirmCompletion(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if ($ticket->approval_user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'it_dept_confirmed_completion') {
+            return back()->withErrors(['error' => 'This ticket is not awaiting your completion confirmation.']);
+        }
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'dept_confirmed']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_confirmed', 'Completion confirmed by Department Manager');
+
+        // Send notification to job requester (person who submitted ticket)
+        $ticket->loadMissing(['requester', 'approvalUser', 'itMember']);
+        
+        if ($ticket->requester && $ticket->requester->email) {
+            Mail::to($ticket->requester->email)->later(now(), new \App\Mail\CompletionConfirmationMail($ticket, $request->user()));
+        }
+
+        return back()->with('status', 'Job completion confirmed. Requester has been notified.');
+    }
+
+    // IT Department Manager confirms ticket and sends to IT Manager
+    public function itDeptManagerConfirm(Request $request, Ticket $ticket): RedirectResponse
+    {
+        // Check if user has IT Dept Manager role
+        if (!$request->user()->hasRole('it-dept-manager')) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'dept_approved') {
+            return back()->withErrors(['error' => 'This ticket is not awaiting IT Department Manager confirmation.']);
+        }
+
+        $from = $ticket->status;
+
+        // Update status to it_dept_approved
+        $ticket->update(['status' => 'it_dept_approved']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_dept_approved', 'Confirmed by IT Dept Manager');
+
+        // Send notification to IT Manager
+        $itManager = User::whereHas('role', function ($query) {
+            $query->where('name', 'it_manager');
+        })->first();
+
+        if ($itManager) {
+            $ticket->load(['requester', 'approvalUser']);
+            Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+        }
+
+        return back()->with('status', 'Ticket confirmed and sent to IT Manager for assignment.');
+    }
+
+    // IT Department Manager rejects ticket
+    public function itDeptManagerReject(Request $request, Ticket $ticket): RedirectResponse
+    {
+        // Check if user has IT Dept Manager role
+        if (!$request->user()->hasRole('it-dept-manager')) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'dept_approved') {
+            return back()->withErrors(['error' => 'This ticket is not awaiting IT Department Manager confirmation.']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        // Update status to it_dept_rejected
+        $ticket->update(['status' => 'it_dept_rejected']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_dept_rejected', $validated['remark']);
+
+        // Notify requester
+        $ticket->loadMissing(['requester', 'approvalUser']);
+        if ($ticket->requester && $ticket->requester->email) {
+            Mail::to($ticket->requester->email)->send(
+                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+            );
+        }
+
+        return back()->with('status', 'Ticket rejected by IT Department Manager.');
+    }
+
+    // IT Manager rejects ticket
+    public function itManagerReject(Request $request, Ticket $ticket): RedirectResponse
+    {
+        // Check if user has IT Manager role
+        if (!$request->user()->hasRole('it_manager')) {
+            abort(403);
+        }
+
+        if (!in_array($ticket->status, ['it_dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'])) {
+            return back()->withErrors(['error' => 'This ticket cannot be rejected at this stage.']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        // Update status to it_manager_rejected
+        $ticket->update(['status' => 'it_manager_rejected']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_manager_rejected', $validated['remark']);
+
+        // Notify requester and approval user
+        $ticket->loadMissing(['requester', 'approvalUser']);
+        
+        if ($ticket->requester && $ticket->requester->email) {
+            Mail::to($ticket->requester->email)->send(
+                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+            );
+        }
+
+        if ($ticket->approvalUser && $ticket->approvalUser->email) {
+            Mail::to($ticket->approvalUser->email)->send(
+                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+            );
+        }
+
+        return back()->with('status', 'Ticket rejected by IT Manager.');
+    }
+
     public function assignToItMember(Request $request, Ticket $ticket): RedirectResponse
     {
-        if (!in_array($ticket->status, ['dept_approved', 'approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true)) {
+        if (!in_array($ticket->status, ['it_dept_approved', 'dept_approved', 'approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true)) {
             return back()->withErrors(['it_member_id' => 'This ticket is not ready for IT assignment yet.']);
         }
 
@@ -367,7 +503,36 @@ class TicketController extends Controller
         $from = $ticket->status;
 
         $ticket->update(['status' => 'it_mgr_confirmed']);
-        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_mgr_confirmed');
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_mgr_confirmed', 'Confirmed by IT Manager');
+
+        // Notify IT Department Manager to confirm completion
+        $ticket->loadMissing(['requester', 'itMember', 'approvalUser']);
+        $itDeptManagers = User::whereHas('roles', fn($q) => $q->where('name', 'it-dept-manager'))->get();
+        
+        foreach ($itDeptManagers as $itDeptManager) {
+            if ($itDeptManager->email) {
+                Mail::to($itDeptManager->email)->queue(new \App\Mail\ItManagerConfirmedNotifyItDeptManagerMail($ticket));
+            }
+        }
+
+        return back()->with('status', 'Completion confirmed and sent to IT Department Manager.');
+    }
+
+    // IT Department Manager confirms completed job
+    public function itDeptManagerConfirmCompletion(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if (!$request->user()->hasRole('it-dept-manager')) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'it_mgr_confirmed') {
+            return back()->withErrors(['error' => 'This ticket is not awaiting IT Department Manager confirmation.']);
+        }
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_dept_confirmed_completion']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_dept_confirmed_completion', 'Completion confirmed by IT Dept Manager');
 
         // Notify department/section manager who approved the ticket
         $ticket->loadMissing(['approvalUser', 'requester', 'itMember']);
@@ -376,7 +541,37 @@ class TicketController extends Controller
             Mail::to($approver->email)->queue(new TicketItManagerConfirmedMail($ticket));
         }
 
-        return back()->with('status', 'IT Manager confirmed completion.');
+        return back()->with('status', 'Job completion confirmed and sent to Department Manager.');
+    }
+
+    // IT Department Manager reopens completed job
+    public function itDeptManagerReopenCompletion(Request $request, Ticket $ticket): RedirectResponse
+    {
+        if (!$request->user()->hasRole('it-dept-manager')) {
+            abort(403);
+        }
+
+        if ($ticket->status !== 'it_mgr_confirmed') {
+            return back()->withErrors(['error' => 'This ticket is not awaiting IT Department Manager confirmation.']);
+        }
+
+        $validated = $request->validate([
+            'remark' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $from = $ticket->status;
+
+        $ticket->update(['status' => 'it_dept_reopened_completion']);
+        $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_dept_reopened_completion', $validated['remark']);
+
+        // Notify IT Manager to reassign
+        $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
+        if ($itManager && $itManager->email) {
+            $ticket->loadMissing(['requester', 'itMember', 'approvalUser']);
+            Mail::to($itManager->email)->queue(new \App\Mail\ItDeptManagerReopenedJobMail($ticket));
+        }
+
+        return back()->with('status', 'Job reopened and sent back to IT Manager for reassignment.');
     }
 
     public function itManagerReopen(Request $request, Ticket $ticket): RedirectResponse
@@ -453,7 +648,7 @@ class TicketController extends Controller
             abort(403);
         }
 
-        if ($ticket->status !== 'it_mgr_confirmed') {
+        if (!in_array($ticket->status, ['it_mgr_confirmed', 'it_dept_confirmed_completion'])) {
             return back()->withErrors(['status' => 'Only tickets awaiting department confirmation can be reopened.']);
         }
 
@@ -537,6 +732,8 @@ class TicketController extends Controller
             'needed_by' => ['required', 'date'],
             'section_id' => ['required', 'integer', 'exists:sections,id'],
             'approval_user_id' => ['required', 'integer', 'exists:users,id'],
+            'actual_requester_name' => ['nullable', 'string', 'max:255'],
+            'actual_requester_email' => ['nullable', 'email', 'max:255'],
             'attachments.*' => ['nullable', 'file', 'max:10240', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,zip,txt'],
         ]);
 
@@ -585,6 +782,8 @@ class TicketController extends Controller
             'priority' => $validated['priority'],
             'needed_by' => $validated['needed_by'],
             'section_id' => $validated['section_id'],
+            'actual_requester_name' => $validated['actual_requester_name'] ?? null,
+            'actual_requester_email' => $validated['actual_requester_email'] ?? null,
             'status' => 'pending',
         ]);
 
