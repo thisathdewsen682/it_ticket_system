@@ -142,6 +142,13 @@ Schedule::command('tickets:send-approval-reminders')
     ->withoutOverlapping()
     ->onOneServer();
 
+// Schedule daily reminder emails for IT Department Manager to confirm approved tickets
+// Runs every day at 8:03 AM
+Schedule::command('tickets:send-it-dept-manager-approval-reminders')
+    ->dailyAt('08:03')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // Schedule daily reminder emails for unassigned approved tickets
 // Runs every day at 8:00 AM
 Schedule::command('tickets:send-unassigned-reminder')
@@ -161,6 +168,13 @@ Schedule::command('tickets:send-assigned-reminder')
 // Runs every day at 8:06 AM
 Schedule::command('tickets:send-it-manager-reminders')
     ->dailyAt('08:15')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// Schedule daily reminder emails for IT Department Manager confirmations
+// Runs every day at 8:17 AM
+Schedule::command('tickets:send-it-dept-manager-confirmation-reminders')
+    ->dailyAt('08:17')
     ->withoutOverlapping()
     ->onOneServer();
 

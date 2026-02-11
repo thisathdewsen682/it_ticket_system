@@ -2,7 +2,7 @@ Email queue inspection commands:
 
 php artisan queue:work
 php artisan queue:listen
-php artisan queue:failed
+http://172.23.112.22/it_ticket_system/dashboard/unified?tab=pending_completion&role_tab=it-dept-manager
 php artisan queue:failed:show {id}
 php artisan queue:retry {id|all}
 php artisan queue:flush

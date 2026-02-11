@@ -217,16 +217,29 @@ Route::middleware(['auth'])->group(function () {
             ->paginate(10, ['*'], 'approved_page')
             ->appends(['tab' => 'approved']);
 
+        $pendingConfirmationTickets = (clone $baseQuery)
+            ->where('status', 'it_dept_confirmed_completion')
+            ->paginate(10, ['*'], 'pending_confirmation_page')
+            ->appends(['tab' => 'pending_confirmation']);
+
         $completedTickets = (clone $baseQuery)
             ->whereIn('status', [
-                'dept_rejected',
                 'dept_confirmed',
                 'requester_confirmed',
             ])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);
 
-        return view('dashboard.manager', compact('pendingTickets', 'approvedTickets', 'completedTickets'));
+        $rejectedTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_rejected',
+                'it_dept_rejected',
+                'it_manager_rejected',
+            ])
+            ->paginate(10, ['*'], 'rejected_page')
+            ->appends(['tab' => 'rejected']);
+
+        return view('dashboard.manager', compact('pendingTickets', 'approvedTickets', 'pendingConfirmationTickets', 'completedTickets', 'rejectedTickets'));
     })->middleware('role:dept_manager,section_manager')->name('dashboard.manager');
 
     Route::get('/dashboard/it-manager', function () {

@@ -36,7 +36,7 @@
         </div>
 
         @if (!isset($tickets) || $tickets->count() === 0)
-            <div class="text-sm text-slate-600">No tickets found.</div>
+            <div class="text-sm text-slate-600">No Jobs found.</div>
         @else
             <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                 <div class="overflow-x-auto">

@@ -1,15 +1,15 @@
 @extends('emails.layout', ['headerColor' => '#ef4444', 'headerColorDark' => '#dc2626', 'accentColor' => '#ef4444'])
 
 @section('header')
-    <h1>❌ Your Ticket was Rejected</h1>
-    <p>Ticket #{{ $ticket->id }}</p>
+    <h1>❌ Ticket Rejected</h1>
+    <p>Rejected by Department/Section Manager - Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Dear <strong>{{ $ticket->requester->name ?? 'Requester' }}</strong>,</p>
+    <p class="greeting">Hello <strong>{{ $recipientName ?? ($ticket->requester->name ?? 'Requester') }}</strong>,</p>
 
     <p class="message">
-        Your ticket <strong>#{{ $ticket->id }}</strong> has been <strong>rejected</strong> by <strong>{{ $rejectedBy ?? 'Manager' }}</strong>.
+        Your ticket <strong>#{{ $ticket->id }}</strong> has been <strong>rejected</strong> by <strong>{{ $rejectedBy }}</strong>.
     </p>
 
     <div class="info-card">
@@ -39,7 +39,7 @@
 
         <div class="info-row">
             <span class="info-label">Rejected By:</span>
-            <span class="info-value">{{ $rejectedBy ?? ($ticket->approvalUser->name ?? 'Manager') }}</span>
+            <span class="info-value">{{ $rejectedBy }}</span>
         </div>
     </div>
 

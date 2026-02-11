@@ -32,7 +32,7 @@
             <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
                 <div class="p-8 text-gray-900">
                     <div class="mb-6 text-sm text-slate-700 font-medium bg-slate-50 border border-slate-200 rounded-lg p-4">
-                        Tickets approved by department managers will appear here.
+                        Jobs approved by department managers will appear here.
                     </div>
 
                     @php
@@ -70,7 +70,7 @@
                     </div>
 
                     @if (!isset($tickets) || $tickets->count() === 0)
-                        <div class="text-sm text-slate-600">No tickets found.</div>
+                        <div class="text-sm text-slate-600">No Jobs found.</div>
                     @else
                         <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                             <div class="overflow-x-auto">
@@ -297,12 +297,16 @@
                                                                                                 Assign
                                                                                             </x-primary-button>
                                                                                         </form>
-                                                                                        <button 
-                                                                                            onclick="openRejectModal({{ $ticket->id }})" 
-                                                                                            type="button"
-                                                                                            class="mt-2 inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                                                            Reject
-                                                                                        </button>
+                                                                                        <form method="POST" action="{{ route('tickets.it_manager_reject', $ticket) }}"
+                                                                                            class="mt-2 flex items-center justify-end gap-2">
+                                                                                            @csrf
+                                                                                            <input type="text" name="remark" required
+                                                                                                placeholder="Reject reason"
+                                                                                                class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                                                                            <x-danger-button>
+                                                                                                Reject
+                                                                                            </x-danger-button>
+                                                                                        </form>
                                                                                     @elseif ($ticket->status === 'it_completed')
                                                                                         <div class="flex flex-col items-end gap-2">
                                                                                             <form method="POST" action="{{ route('tickets.it_manager_confirm', $ticket) }}" class="flex justify-end">

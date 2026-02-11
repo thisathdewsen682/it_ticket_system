@@ -2,12 +2,12 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-bold text-xl text-slate-900 leading-tight">
-                {{ __('Create Ticket') }}
+                {{ __('Create Job') }}
             </h2>
 
             <a href="{{ route('tickets.index') }}"
                 class="inline-flex items-center px-4 py-2 bg-blue-600 border border-blue-600 rounded-lg font-semibold text-xs text-white uppercase tracking-widest shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
-                View My Tickets
+                View My Jobs
             </a>
         </div>
     </x-slot>
@@ -49,7 +49,7 @@
                             {{-- Title --}}
                             <div>
                                 <label class="block font-semibold text-slate-900 mb-2" for="title">
-                                    Ticket Title
+                                    Job Title
                                 </label>
                                 <input type="text" name="title" id="title" value="{{ old('title') }}" required
                                     class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -175,7 +175,7 @@
                         {{-- Buttons --}}
                         <div class="flex space-x-4 pt-6">
                             <x-primary-button>
-                                Submit Ticket
+                                Submit Job Request
                             </x-primary-button>
 
                             <a href="{{ url('/dashboard/employee') }}"

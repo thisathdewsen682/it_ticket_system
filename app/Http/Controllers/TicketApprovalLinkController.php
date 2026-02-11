@@ -98,8 +98,9 @@ class TicketApprovalLinkController extends Controller
 
         $ticket->loadMissing(['requester', 'approvalUser']);
         if ($ticket->requester && $ticket->requester->email) {
+            $rejectedBy = 'Department/Section Manager: ' . ($request->user()->name ?? 'Manager');
             Mail::to($ticket->requester->email)->send(
-                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, 'Rejected via email link.')
+                new \App\Mail\TicketRejectedByDeptManagerMail($ticket, 'Rejected via email link.', $rejectedBy, $ticket->requester->name ?? null)
             );
         }
 

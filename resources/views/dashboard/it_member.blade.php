@@ -10,7 +10,7 @@
             <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
                 <div class="p-8 text-gray-900">
                     <div class="mb-6 text-sm text-slate-700 font-medium bg-slate-50 border border-slate-200 rounded-lg p-4">
-                        Assigned tickets will appear here.
+                        Assigned Jobs will appear here.
                     </div>
 
                     @php
@@ -43,7 +43,7 @@
                     </div>
 
                     @if (!isset($tickets) || $tickets->count() === 0)
-                        <div class="text-sm text-slate-600">No tickets found.</div>
+                        <div class="text-sm text-slate-600">No Jobs found.</div>
                     @else
                         <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                             <div class="overflow-x-auto">

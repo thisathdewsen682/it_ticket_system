@@ -1,44 +1,80 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Job Completion Awaits Your Confirmation</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
-        <div style="background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h2 style="color: #7c3aed; border-bottom: 2px solid #7c3aed; padding-bottom: 10px;">
-                Job Completion Awaits Your Confirmation
-            </h2>
-            
-            <p>Dear IT Department Manager,</p>
-            
-            <p>The IT Manager has confirmed the completion of the following ticket. Please review and confirm or reopen if needed.</p>
-            
-            <div style="background-color: #f9fafb; padding: 15px; border-left: 4px solid #7c3aed; margin: 20px 0;">
-                <p style="margin: 5px 0;"><strong>Ticket ID:</strong> #{{ $ticket->id }}</p>
-                <p style="margin: 5px 0;"><strong>Title:</strong> {{ $ticket->title }}</p>
-                <p style="margin: 5px 0;"><strong>Requester:</strong> {{ $ticket->requester->name ?? 'N/A' }}</p>
-                <p style="margin: 5px 0;"><strong>IT Member:</strong> {{ $ticket->itMember->name ?? 'N/A' }}</p>
-                <p style="margin: 5px 0;"><strong>Category:</strong> {{ $ticket->category }}</p>
-                <p style="margin: 5px 0;"><strong>Priority:</strong> {{ $ticket->priority }}</p>
-            </div>
-            
-            <p><strong>Description:</strong></p>
-            <p style="background-color: #f9fafb; padding: 10px; border-radius: 5px;">{{ $ticket->description }}</p>
-            
-            <div style="margin-top: 30px; text-align: center;">
-                <p>Please log in to the system to review and confirm the completion or reopen if necessary.</p>
-                <a href="{{ url('/dashboard') }}" style="display: inline-block; padding: 12px 30px; background-color: #7c3aed; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 15px;">
-                    View in Dashboard
-                </a>
-            </div>
-            
-            <hr style="margin-top: 30px; border: none; border-top: 1px solid #e5e7eb;">
-            
-            <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">
-                This is an automated notification from the IT Ticket System. Please do not reply to this email.
-            </p>
+@extends('emails.layout', ['headerColor' => '#7c3aed', 'headerColorDark' => '#6d28d9', 'accentColor' => '#7c3aed'])
+
+@section('header')
+    <h1>✅ Job Completion - Confirmation Required</h1>
+    <p>IT Department Manager Action Needed - Ticket #{{ $ticket->id }}</p>
+@endsection
+
+@section('content')
+    <p class="greeting">Dear <strong>IT Department Manager</strong>,</p>
+
+    <p class="message">
+        The IT Manager has confirmed that the job has been completed. Please review and confirm the completion, or reopen if further work is needed.
+    </p>
+
+    <div class="info-card">
+        <h3>📋 Ticket Details</h3>
+        
+        <div class="info-row">
+            <span class="info-label">Ticket ID:</span>
+            <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
+
+        <div class="info-row">
+            <span class="info-label">Title:</span>
+            <span class="info-value">{{ $ticket->title }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Category:</span>
+            <span class="info-value">{{ $ticket->category }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Priority:</span>
+            <span class="info-value">
+                <span class="badge badge-{{ strtolower($ticket->priority) }}">{{ $ticket->priority }}</span>
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Requester:</span>
+            <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Handled By:</span>
+            <span class="info-value">{{ $ticket->itMember->name ?? 'N/A' }} (IT Member)</span>
+        </div>
+
+        @if($ticket->needed_by)
+        <div class="info-row">
+            <span class="info-label">Due Date:</span>
+            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
+        </div>
+        @endif
+
+        @if($ticket->description)
+        <div class="info-row" style="display: block; border-bottom: none; padding-top: 15px;">
+            <span class="info-label">Description:</span>
+            <div class="description-box">
+                <p>{{ $ticket->description }}</p>
+            </div>
+        </div>
+        @endif
     </div>
-</body>
-</html>
+
+    <div class="alert-box">
+        <p><strong>⚠️ Action Required:</strong> Please review the completed work and either confirm the completion or reopen if the work needs revision.</p>
+    </div>
+
+    <div class="button-container">
+        <a href="{{ url('/dashboard/unified?role_tab=it-dept-manager&tab=pending_completion') }}" class="button button-primary">Review Completion</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; color: #6b7280; font-size: 14px;">
+        Log in to your IT Department Manager dashboard to confirm or reopen this ticket.
+    </p>
+@endsection

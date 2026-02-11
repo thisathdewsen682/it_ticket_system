@@ -156,29 +156,37 @@ class TicketController extends Controller
             ->where('requester_id', $request->user()->id)
             ->orderByDesc('id');
 
+        // Pending: Waiting for approval or approved but not yet started by IT
         $pendingTickets = (clone $baseQuery)
-            ->where('status', 'pending')
-            ->paginate(10, ['*'], 'pending_page')
-            ->appends(['tab' => 'pending']);
-
-        $activeTickets = (clone $baseQuery)
             ->whereIn('status', [
+                'pending',
                 'dept_approved',
+                'it_dept_approved',
                 'it_assigned',
                 'it_reopened',
                 'dept_reopened',
                 'requester_reopened',
+            ])
+            ->paginate(10, ['*'], 'pending_page')
+            ->appends(['tab' => 'pending']);
+
+        // In Progress: Actually being worked on by IT
+        $activeTickets = (clone $baseQuery)
+            ->whereIn('status', [
                 'it_in_progress',
                 'it_completed',
                 'it_mgr_confirmed',
+                'it_dept_confirmed_completion',
                 'dept_confirmed',
             ])
             ->paginate(10, ['*'], 'active_page')
             ->appends(['tab' => 'active']);
 
+        // Completed: Fully closed or rejected
         $completedTickets = (clone $baseQuery)
             ->whereIn('status', [
                 'dept_rejected',
+                'it_dept_rejected',
                 'requester_confirmed',
             ])
             ->paginate(10, ['*'], 'completed_page')
@@ -262,9 +270,10 @@ class TicketController extends Controller
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_rejected', $validated['remark']);
 
         $ticket->loadMissing(['requester', 'approvalUser']);
+        $rejectedBy = 'Department/Section Manager: ' . ($request->user()->name ?? 'Manager');
         if ($ticket->requester && $ticket->requester->email) {
             Mail::to($ticket->requester->email)->send(
-                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+                new \App\Mail\TicketRejectedByDeptManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->requester->name ?? null)
             );
         }
 
@@ -352,9 +361,19 @@ class TicketController extends Controller
 
         // Notify requester
         $ticket->loadMissing(['requester', 'approvalUser']);
-        if ($ticket->requester && $ticket->requester->email) {
-            Mail::to($ticket->requester->email)->send(
-                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+        $rejectedBy = 'IT Department Manager: ' . ($request->user()->name ?? 'Manager');
+        $requesterEmail = $ticket->requester?->email;
+        $approverEmail = $ticket->approvalUser?->email;
+
+        if ($requesterEmail) {
+            Mail::to($requesterEmail)->send(
+                new \App\Mail\TicketRejectedByItDeptManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->requester->name ?? null)
+            );
+        }
+
+        if ($approverEmail) {
+            Mail::to($approverEmail)->send(
+                new \App\Mail\TicketRejectedByItDeptManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->approvalUser->name ?? null)
             );
         }
 
@@ -383,19 +402,32 @@ class TicketController extends Controller
         $ticket->update(['status' => 'it_manager_rejected']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_manager_rejected', $validated['remark']);
 
-        // Notify requester and approval user
+        // Notify requester, approval user, and IT Department Managers
         $ticket->loadMissing(['requester', 'approvalUser']);
-        
+        $rejectedBy = 'IT Manager: ' . ($request->user()->name ?? 'Manager');
+
         if ($ticket->requester && $ticket->requester->email) {
             Mail::to($ticket->requester->email)->send(
-                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+                new \App\Mail\TicketRejectedByItManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->requester->name ?? null)
             );
         }
 
         if ($ticket->approvalUser && $ticket->approvalUser->email) {
             Mail::to($ticket->approvalUser->email)->send(
-                new \App\Mail\TicketRejectedNotifyRequesterMail($ticket, $validated['remark'])
+                new \App\Mail\TicketRejectedByItManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->approvalUser->name ?? null)
             );
+        }
+
+        $itDeptManagers = User::whereHas('roles', function ($query) {
+            $query->where('name', 'it-dept-manager');
+        })->get();
+
+        foreach ($itDeptManagers as $itDeptManager) {
+            if ($itDeptManager->email) {
+                Mail::to($itDeptManager->email)->send(
+                    new \App\Mail\TicketRejectedByItManagerMail($ticket, $validated['remark'], $rejectedBy, $itDeptManager->name ?? null)
+                );
+            }
         }
 
         return back()->with('status', 'Ticket rejected by IT Manager.');
@@ -684,6 +716,13 @@ class TicketController extends Controller
 
         $ticket->update(['status' => 'requester_confirmed']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'requester_confirmed');
+
+        // Send final confirmation email to actual requester if email exists
+        $ticket->loadMissing(['requester', 'itMember']);
+        
+        if ($ticket->actual_requester_email) {
+            Mail::to($ticket->actual_requester_email)->later(now(), new \App\Mail\RequesterFinalConfirmationMail($ticket));
+        }
 
         return back()->with('status', 'Requester confirmed.');
     }

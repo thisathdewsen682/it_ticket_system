@@ -1,15 +1,15 @@
-@extends('emails.layout', ['headerColor' => '#f97316', 'headerColorDark' => '#ea580c', 'accentColor' => '#f97316'])
+@extends('emails.layout', ['headerColor' => '#10b981', 'headerColorDark' => '#059669', 'accentColor' => '#10b981'])
 
 @section('header')
-    <h1>⏰ Reminder: Confirmation Required</h1>
-    <p>Pending Ticket Confirmation</p>
+    <h1>✅ Job Completed Successfully</h1>
+    <p>Final Confirmation - Ticket #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
-    <p class="greeting">Dear <strong>IT Manager</strong>,</p>
+    <p class="greeting">Dear <strong>{{ $ticket->actual_requester_name ?? 'Job Requestor' }}</strong>,</p>
 
     <p class="message">
-        This is a <strong>reminder</strong> that the following ticket has been completed by the IT member and is awaiting your confirmation. Please review and take action soon.
+        The IT support job that was requested on your behalf has been completed and confirmed. The work has been successfully finished and approved by all parties.
     </p>
 
     <div class="info-card">
@@ -37,27 +37,31 @@
             </span>
         </div>
 
+        @if($ticket->requester)
         <div class="info-row">
-            <span class="info-label">Completed By:</span>
-            <span class="info-value">{{ $ticket->itMember->name ?? 'N/A' }}</span>
+            <span class="info-label">Submitted By:</span>
+            <span class="info-value">{{ $ticket->requester->name }}</span>
         </div>
+        @endif
 
+        @if($ticket->itMember)
         <div class="info-row">
-            <span class="info-label">Completed At:</span>
-            <span class="info-value">{{ $ticket->updated_at->format('F j, Y - H:i') }}</span>
+            <span class="info-label">Handled By:</span>
+            <span class="info-value">{{ $ticket->itMember->name }} (IT Member)</span>
         </div>
+        @endif
 
         @if($ticket->needed_by)
         <div class="info-row">
-            <span class="info-label">Due Date:</span>
-            <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
-                @if(now()->greaterThan($ticket->needed_by))
-                    <span class="badge badge-urgent">OVERDUE</span>
-                @endif
-            </span>
+            <span class="info-label">Requested Due Date:</span>
+            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
         </div>
         @endif
+
+        <div class="info-row">
+            <span class="info-label">Completed On:</span>
+            <span class="info-value">{{ now()->format('F j, Y g:i A') }}</span>
+        </div>
 
         @if($ticket->description)
         <div class="info-row" style="display: block; border-bottom: none; padding-top: 15px;">
@@ -69,17 +73,13 @@
         @endif
     </div>
 
-    <div class="alert-box">
-        <p><strong>⚠️ Action Required:</strong> This ticket is waiting for your confirmation. Please review and confirm or reopen as needed.</p>
-    </div>
-
-    <div class="button-container">
-        <a href="{{ url('/dashboard/unified?role_tab=it_manager&tab=pending_confirmation') }}" class="button button-primary">Review & Confirm</a>
+    <div class="alert-box" style="background-color: #d1fae5; border-left-color: #10b981;">
+        <p><strong>✅ Job Status:</strong> This job has been completed and confirmed by all parties. No further action is required.</p>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Access your IT Manager dashboard to take action on this ticket.
+        Thank you for using the IT Job Management System. If you need further assistance, please submit a new ticket.
     </p>
 @endsection

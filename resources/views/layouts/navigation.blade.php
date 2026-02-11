@@ -2,14 +2,8 @@
 <nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm">
     @php
         $roleName = auth()->user()?->role?->name;
-
-        $dashboardUrl = match ($roleName) {
-            'employee' => route('dashboard.employee'),
-            'dept_manager', 'section_manager' => route('dashboard.manager'),
-            'it_manager' => route('dashboard.it_manager'),
-            'it_member' => route('dashboard.it_member'),
-            default => route('dashboard'),
-        };
+        // Use unified dashboard for all users
+        $dashboardUrl = route('dashboard.unified');
     @endphp
 
     <!-- Primary Navigation Menu -->
@@ -33,11 +27,11 @@
 
                     @if ($roleName && !in_array($roleName, ['it_manager', 'it_member'], true))
                         <x-nav-link :href="route('dashboard.employee')" :active="request()->routeIs('dashboard.employee')">
-                            {{ __('Create Ticket') }}
+                            {{ __('Create Job') }}
                         </x-nav-link>
 
                         <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')">
-                            {{ __('My Tickets') }}
+                            {{ __('My Jobs') }}
                         </x-nav-link>
                     @endif
 

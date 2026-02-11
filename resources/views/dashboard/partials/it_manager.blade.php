@@ -41,7 +41,7 @@
         </div>
 
         @if (!isset($tickets) || $tickets->count() === 0)
-            <div class="text-sm text-slate-600">No tickets found.</div>
+            <div class="text-sm text-slate-600">No Jobs found.</div>
         @else
             <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                 <div class="overflow-x-auto">
@@ -84,12 +84,16 @@
                                                     </select>
                                                     <x-primary-button>{{ $ticket->status === 'it_dept_reopened_completion' ? 'Reassign' : 'Assign' }}</x-primary-button>
                                                 </form>
-                                                <button 
-                                                    onclick="openRejectModal({{ $ticket->id }})" 
-                                                    type="button"
-                                                    class="inline-flex items-center px-3 py-1.5 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                    Reject
-                                                </button>
+                                                <form method="POST" action="{{ route('tickets.it_manager_reject', $ticket) }}"
+                                                    class="flex items-center justify-end gap-2">
+                                                    @csrf
+                                                    <input type="text" name="remark" required
+                                                        placeholder="Reject reason"
+                                                        class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500" />
+                                                    <x-danger-button>
+                                                        Reject
+                                                    </x-danger-button>
+                                                </form>
                                             </div>
                                         @elseif ($ticket->status === 'it_completed')
                                             <form method="POST" action="{{ route('tickets.it_manager_confirm', $ticket) }}" class="inline">
@@ -108,60 +112,3 @@
         @endif
     </div>
 </div>
-{{-- Reject Modal --}}
-<div id="rejectModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Reject Ticket</h3>
-            <form id="rejectForm" method="POST" action="">
-                @csrf
-                <div class="mb-4">
-                    <label for="reject_remark" class="block text-sm font-medium text-gray-700 mb-2">Reason for Rejection</label>
-                    <textarea 
-                        name="remark" 
-                        id="reject_remark" 
-                        rows="4" 
-                        required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="Enter reason for rejection..."></textarea>
-                </div>
-                <div class="flex gap-2 justify-end">
-                    <button 
-                        type="button" 
-                        onclick="closeRejectModal()"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-                        Cancel
-                    </button>
-                    <button 
-                        type="submit"
-                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                        Reject Ticket
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-function openRejectModal(ticketId) {
-    const modal = document.getElementById('rejectModal');
-    const form = document.getElementById('rejectForm');
-    form.action = `/it_ticket_system/it-manager/tickets/${ticketId}/reject`;
-    modal.classList.remove('hidden');
-}
-
-function closeRejectModal() {
-    const modal = document.getElementById('rejectModal');
-    const textarea = document.getElementById('reject_remark');
-    textarea.value = '';
-    modal.classList.add('hidden');
-}
-
-// Close modal when clicking outside
-document.getElementById('rejectModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeRejectModal();
-    }
-});
-</script>

@@ -11,7 +11,7 @@
                 <div class="p-8 text-gray-900">
                     <div
                         class="mb-6 text-sm text-slate-700 font-medium bg-slate-50 border border-slate-200 rounded-lg p-4">
-                        Track tickets you approved and their current IT status.
+                        Track Jobs you approved and their current IT status.
                     </div>
 
                     @if (session('status'))
@@ -34,7 +34,9 @@
                         $tab = request('tab', 'pending');
                         $tickets = match ($tab) {
                             'approved' => $approvedTickets ?? collect(),
+                            'pending_confirmation' => $pendingConfirmationTickets ?? collect(),
                             'completed' => $completedTickets ?? collect(),
+                            'rejected' => $rejectedTickets ?? collect(),
                             default => $pendingTickets ?? collect(),
                         };
                     @endphp
@@ -48,14 +50,22 @@
                             class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'approved' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">
                             Approved
                         </a>
+                        <a href="{{ route('dashboard.manager', ['tab' => 'pending_confirmation']) }}"
+                            class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'pending_confirmation' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">
+                            Pending Confirmation
+                        </a>
                         <a href="{{ route('dashboard.manager', ['tab' => 'completed']) }}"
                             class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'completed' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">
                             Completed
                         </a>
+                        <a href="{{ route('dashboard.manager', ['tab' => 'rejected']) }}"
+                            class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'rejected' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">
+                            Rejected
+                        </a>
                     </div>
 
                     @if (!isset($tickets) || $tickets->count() === 0)
-                        <div class="text-sm text-slate-600">No tickets found.</div>
+                        <div class="text-sm text-slate-600">No Jobs found.</div>
                     @else
                         <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                             <div class="overflow-x-auto">
@@ -238,6 +248,7 @@
                                                             'it_in_progress' => 'In Progress',
                                                             'it_completed' => 'IT Completed',
                                                             'it_mgr_confirmed' => 'Awaiting Dept Confirm',
+                                                            'it_dept_confirmed_completion' => 'Awaiting Dept Confirm',
                                                             'dept_confirmed' => 'Dept Confirmed',
                                                             'requester_confirmed' => 'Requester Confirmed',
                                                             default => (string) $ticket->status,
@@ -286,6 +297,28 @@
                                                                 </x-primary-button>
                                                             </form>
 
+                                                            <form method="POST" action="{{ route('tickets.dept_reopen', $ticket) }}"
+                                                                class="flex items-center justify-end gap-2">
+                                                                @csrf
+                                                                <input type="text" name="remark" required
+                                                                    placeholder="Reopen reason"
+                                                                    class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                                                <x-danger-button>
+                                                                    Reopen
+                                                                </x-danger-button>
+                                                            </form>
+                                                        </div>
+                                                    @elseif ($ticket->status === 'it_dept_confirmed_completion')
+                                                        <div class="flex flex-col items-end gap-2">
+                                                            <div class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mb-1">
+                                                                <strong>Awaiting Your Confirmation</strong>
+                                                            </div>
+                                                            <form method="POST" action="{{ route('tickets.dept_confirm_completion', $ticket) }}" class="inline">
+                                                                @csrf
+                                                                <x-primary-button class="bg-green-600 hover:bg-green-700">
+                                                                    Confirm Completion
+                                                                </x-primary-button>
+                                                            </form>
                                                             <form method="POST" action="{{ route('tickets.dept_reopen', $ticket) }}"
                                                                 class="flex items-center justify-end gap-2">
                                                                 @csrf

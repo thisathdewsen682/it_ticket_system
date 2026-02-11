@@ -2,14 +2,16 @@
 <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
     <div class="p-8 text-gray-900">
         <div class="mb-6 text-sm text-slate-700 font-medium bg-slate-50 border border-slate-200 rounded-lg p-4">
-            Track tickets you approved and their current IT status.
+            Track Jobs you approved and their current IT status.
         </div>
 
         @php
             $tab = request('tab', 'pending');
             $tickets = match ($tab) {
                 'approved' => $approvedTickets ?? collect(),
+                'pending_confirmation' => $pendingConfirmationTickets ?? collect(),
                 'completed' => $completedTickets ?? collect(),
+                'rejected' => $rejectedTickets ?? collect(),
                 default => $pendingTickets ?? collect(),
             };
             $role_tab = request('role_tab');
@@ -24,14 +26,22 @@
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'approved' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
                 Approved
             </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'pending_confirmation', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'pending_confirmation' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Pending Confirmation
+            </a>
             <a href="{{ route('dashboard.unified', ['tab' => 'completed', 'role_tab' => $role_tab]) }}"
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'completed' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
                 Completed
             </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'rejected', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'rejected' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Rejected
+            </a>
         </div>
 
         @if (!isset($tickets) || $tickets->count() === 0)
-            <div class="text-sm text-slate-600">No tickets found.</div>
+            <div class="text-sm text-slate-600">No Jobs found.</div>
         @else
             <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                 <div class="overflow-x-auto">

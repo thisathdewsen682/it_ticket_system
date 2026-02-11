@@ -1,51 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Job Reopened - Reassignment Required</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
-        <div style="background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 10px;">
-                Job Reopened by IT Department Manager
-            </h2>
-            
-            <p>Dear IT Manager,</p>
-            
-            <p>The IT Department Manager has reopened the following ticket. Please review and reassign to an IT member.</p>
-            
-            <div style="background-color: #fff7ed; padding: 15px; border-left: 4px solid #ea580c; margin: 20px 0;">
-                <p style="margin: 5px 0;"><strong>Ticket ID:</strong> #{{ $ticket->id }}</p>
-                <p style="margin: 5px 0;"><strong>Title:</strong> {{ $ticket->title }}</p>
-                <p style="margin: 5px 0;"><strong>Requester:</strong> {{ $ticket->requester->name ?? 'N/A' }}</p>
-                <p style="margin: 5px 0;"><strong>Previous IT Member:</strong> {{ $ticket->itMember->name ?? 'N/A' }}</p>
-                <p style="margin: 5px 0;"><strong>Category:</strong> {{ $ticket->category }}</p>
-                <p style="margin: 5px 0;"><strong>Priority:</strong> {{ $ticket->priority }}</p>
-            </div>
-            
-            <p><strong>Description:</strong></p>
-            <p style="background-color: #f9fafb; padding: 10px; border-radius: 5px;">{{ $ticket->description }}</p>
-            
-            @if($ticket->statusHistories->where('status', 'it_dept_reopened_completion')->last())
-                <p><strong>Reopen Reason:</strong></p>
-                <p style="background-color: #fee2e2; padding: 10px; border-radius: 5px; color: #991b1b;">
-                    {{ $ticket->statusHistories->where('status', 'it_dept_reopened_completion')->last()->remarks ?? 'No reason provided' }}
-                </p>
-            @endif
-            
-            <div style="margin-top: 30px; text-align: center;">
-                <p>Please log in to the system to reassign this ticket to an IT member.</p>
-                <a href="{{ url('/dashboard') }}" style="display: inline-block; padding: 12px 30px; background-color: #ea580c; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 15px;">
-                    View in Dashboard
-                </a>
-            </div>
-            
-            <hr style="margin-top: 30px; border: none; border-top: 1px solid #e5e7eb;">
-            
-            <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">
-                This is an automated notification from the IT Ticket System. Please do not reply to this email.
-            </p>
+@extends('emails.layout', ['headerColor' => '#ea580c', 'headerColorDark' => '#c2410c', 'accentColor' => '#ea580c'])
+
+@section('header')
+    <h1>🔄 Job Reopened - Reassignment Required</h1>
+    <p>IT Department Manager Reopened - Ticket #{{ $ticket->id }}</p>
+@endsection
+
+@section('content')
+    <p class="greeting">Dear <strong>IT Manager</strong>,</p>
+
+    <p class="message">
+        The IT Department Manager has reopened the following ticket. The work needs to be reviewed and the ticket should be reassigned to an IT member for further action.
+    </p>
+
+    <div class="info-card">
+        <h3>📋 Ticket Details</h3>
+        
+        <div class="info-row">
+            <span class="info-label">Ticket ID:</span>
+            <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
+
+        <div class="info-row">
+            <span class="info-label">Title:</span>
+            <span class="info-value">{{ $ticket->title }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Category:</span>
+            <span class="info-value">{{ $ticket->category }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Priority:</span>
+            <span class="info-value">
+                <span class="badge badge-{{ strtolower($ticket->priority) }}">{{ $ticket->priority }}</span>
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Requester:</span>
+            <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Previous IT Member:</span>
+            <span class="info-value">{{ $ticket->itMember->name ?? 'N/A' }}</span>
+        </div>
+
+        @if($ticket->needed_by)
+        <div class="info-row">
+            <span class="info-label">Due Date:</span>
+            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
+        </div>
+        @endif
+
+        @if($ticket->description)
+        <div class="info-row" style="display: block; border-bottom: none; padding-top: 15px;">
+            <span class="info-label">Description:</span>
+            <div class="description-box">
+                <p>{{ $ticket->description }}</p>
+            </div>
+        </div>
+        @endif
     </div>
-</body>
-</html>
+
+    @if($ticket->statusHistories->where('to_status', 'it_dept_reopened_completion')->last())
+    <div class="alert-box" style="background-color: #fee2e2; border-left-color: #dc2626;">
+        <p><strong>🔄 Reopen Reason:</strong></p>
+        <p style="margin-top: 8px; color: #991b1b;">
+            {{ $ticket->statusHistories->where('to_status', 'it_dept_reopened_completion')->last()->remark ?? 'No reason provided' }}
+        </p>
+    </div>
+    @endif
+
+    <div class="alert-box">
+        <p><strong>⚠️ Action Required:</strong> Please review this ticket and reassign it to an IT member. The previous work has been flagged for revision.</p>
+    </div>
+
+    <div class="button-container">
+        <a href="{{ url('/dashboard/unified?role_tab=it_manager&tab=pending') }}" class="button button-primary">Reassign Ticket</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; color: #6b7280; font-size: 14px;">
+        Log in to your IT Manager dashboard to reassign this ticket.
+    </p>
+@endsection

@@ -2,7 +2,7 @@
 <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
     <div class="p-8 text-gray-900">
         <div class="mb-6 text-sm text-slate-700 font-medium bg-purple-50 border border-purple-200 rounded-lg p-4">
-            Review and confirm tickets approved by department managers before sending to IT Manager for assignment.
+            Review and confirm jobs approved by department managers before sending to IT Manager for assignment.
         </div>
 
         @php
@@ -10,6 +10,7 @@
             $tickets = match ($tab) {
                 'pending_completion' => $pendingCompletionTickets ?? collect(),
                 'confirmed' => $confirmedTickets ?? collect(),
+                'completed' => $completedTickets ?? collect(),
                 'rejected' => $rejectedTickets ?? collect(),
                 default => $pendingApprovalTickets ?? collect(),
             };
@@ -29,6 +30,10 @@
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'confirmed' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
                 Confirmed
             </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'completed', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'completed' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Completed
+            </a>
             <a href="{{ route('dashboard.unified', ['tab' => 'rejected', 'role_tab' => $role_tab]) }}"
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'rejected' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
                 Rejected
@@ -36,7 +41,7 @@
         </div>
 
         @if (!isset($tickets) || $tickets->count() === 0)
-            <div class="text-sm text-slate-600">No tickets found.</div>
+            <div class="text-sm text-slate-600">No Jobs found.</div>
         @else
             <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                 <div class="overflow-x-auto">
@@ -76,7 +81,15 @@
                                             {{ $ticket->priority }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm">{{ $ticket->approvalUser?->name ?? '-' }}</td>
+                                    @php
+                                        $approverName = $ticket->approvalUser?->name
+                                            ?? ($ticket->statusHistories ?? collect())
+                                                ->sortByDesc('id')
+                                                ->firstWhere('to_status', 'dept_approved')
+                                                ?->user?->name
+                                            ?? '-';
+                                    @endphp
+                                    <td class="px-4 py-3 text-sm">{{ $approverName }}</td>
                                     <td class="px-4 py-3 text-sm">{{ $ticket->needed_by?->format('Y-m-d') ?? '-' }}</td>
                                     <td class="px-4 py-3 text-right">
                                         @if ($ticket->status === 'dept_approved')

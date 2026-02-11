@@ -93,7 +93,8 @@ class DashboardController extends Controller
 
         $approvedTickets = (clone $baseQuery)
             ->whereIn('status', [
-                'it_dept_confirmed_completion',
+                'dept_approved',
+                'it_dept_approved',
                 'it_assigned',
                 'it_reopened',
                 'dept_reopened',
@@ -105,20 +106,37 @@ class DashboardController extends Controller
             ->paginate(10, ['*'], 'approved_page')
             ->appends(['tab' => 'approved', 'role_tab' => $request->get('role_tab')]);
 
+        $pendingConfirmationTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'it_dept_confirmed_completion',
+            ])
+            ->paginate(10, ['*'], 'pending_confirmation_page')
+            ->appends(['tab' => 'pending_confirmation', 'role_tab' => $request->get('role_tab')]);
+
         $completedTickets = (clone $baseQuery)
             ->whereIn('status', [
-                'dept_rejected',
                 'dept_confirmed',
                 'requester_confirmed',
             ])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed', 'role_tab' => $request->get('role_tab')]);
 
+        $rejectedTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_rejected',
+                'it_dept_rejected',
+                'it_manager_rejected',
+            ])
+            ->paginate(10, ['*'], 'rejected_page')
+            ->appends(['tab' => 'rejected', 'role_tab' => $request->get('role_tab')]);
+
         return [
             'view' => 'dashboard.partials.manager',
             'pendingTickets' => $pendingTickets,
             'approvedTickets' => $approvedTickets,
+            'pendingConfirmationTickets' => $pendingConfirmationTickets,
             'completedTickets' => $completedTickets,
+            'rejectedTickets' => $rejectedTickets,
         ];
     }
     
@@ -139,9 +157,14 @@ class DashboardController extends Controller
             ->appends(['tab' => 'pending_completion', 'role_tab' => $request->get('role_tab')]);
 
         $confirmedTickets = (clone $baseQuery)
-            ->whereIn('status', ['it_dept_approved', 'it_assigned', 'it_in_progress', 'it_completed', 'it_dept_confirmed_completion', 'dept_confirmed', 'requester_confirmed'])
+            ->whereIn('status', ['it_dept_approved', 'it_assigned', 'it_in_progress', 'it_completed'])
             ->paginate(10, ['*'], 'confirmed_page')
             ->appends(['tab' => 'confirmed', 'role_tab' => $request->get('role_tab')]);
+
+        $completedTickets = (clone $baseQuery)
+            ->whereIn('status', ['it_dept_confirmed_completion', 'dept_confirmed', 'requester_confirmed'])
+            ->paginate(10, ['*'], 'completed_page')
+            ->appends(['tab' => 'completed', 'role_tab' => $request->get('role_tab')]);
 
         $rejectedTickets = (clone $baseQuery)
             ->where('status', 'it_dept_rejected')
@@ -153,6 +176,7 @@ class DashboardController extends Controller
             'pendingApprovalTickets' => $pendingApprovalTickets,
             'pendingCompletionTickets' => $pendingCompletionTickets,
             'confirmedTickets' => $confirmedTickets,
+            'completedTickets' => $completedTickets,
             'rejectedTickets' => $rejectedTickets,
         ];
     }
