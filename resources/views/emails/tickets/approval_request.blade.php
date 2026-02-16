@@ -9,14 +9,14 @@
     <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
 
     <p class="message">
-        A new IT ticket has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
+        A new IT Job has been submitted and requires your approval before work can begin. Please review the details below and make your decision.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -46,7 +46,7 @@
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
+                {{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}
             </span>
         </div>
         @endif
@@ -63,20 +63,20 @@
 
     @if($approvalCutoff)
     <div class="alert-box">
-        <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->format('F j, Y - 11:59 PM') }}</p>
+        <p><strong>⏰ Approval Deadline:</strong> {{ $approvalCutoff->timezone('Asia/Colombo')->format('F j, Y - g:i A') }}</p>
         <p style="margin-top: 8px;">Please make your decision before this deadline to avoid automatic expiration.</p>
     </div>
     @endif
 
     <div class="button-container">
-        <a href="{{ $approveUrl }}" class="button button-success">✓ Approve Ticket</a>
-        <a href="{{ $rejectUrl }}" class="button button-danger">✗ Reject Ticket</a>
+        <a href="{{ $approveUrl }}" class="button button-success">✓ Approve Job</a>
+        <a href="{{ $rejectUrl }}" class="button button-danger">✗ Reject Job</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can also review this ticket by logging into your dashboard:<br>
+        You can also review this job by logging into your dashboard:<br>
         <a href="{{ url('/approvals') }}" style="color: #059669; text-decoration: none; font-weight: 600;">Go to Approvals Dashboard</a>
     </p>
 @endsection

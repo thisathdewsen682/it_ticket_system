@@ -9,7 +9,7 @@
     <p class="greeting">Dear <strong>{{ $approverName }}</strong>,</p>
 
     <p class="message">
-        This is a <strong>reminder</strong> that the following {{ count($tickets) }} ticket(s) have been completed by the IT Manager and are awaiting your confirmation. Please review and take action soon.
+        This is a <strong>reminder</strong> that the following {{ count($tickets) }} job(s) have been completed by the IT Manager and IT Dep Manager are awaiting your confirmation. Please review and take action soon.
     </p>
 
     <p class="message">
@@ -17,15 +17,15 @@
     </p>
 
     <div class="alert-box">
-        <strong>⏰ Action Required:</strong> <p>Please confirm or reopen these tickets as needed.</p>
+        <strong>⏰ Action Required:</strong> <p>Please confirm or reopen these jobs as needed.</p>
     </div>
 
     @foreach($tickets as $index => $ticket)
         <div class="info-card">
-            <h3>📋 Ticket #{{ $ticket['id'] }} - {{ $ticket['title'] }}</h3>
+            <h3>📋 Job #{{ $ticket['id'] }} - {{ $ticket['title'] }}</h3>
             
             <div class="info-row">
-                <span class="info-label">Ticket ID:</span>
+                <span class="info-label">Job ID:</span>
                 <span class="info-value"><strong>#{{ $ticket['id'] }}</strong></span>
             </div>
 
@@ -77,6 +77,6 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Thank you for keeping tickets moving. Your confirmation helps close requests quickly.
+        Thank you for keeping jobs moving. Your confirmation helps close requests quickly.
     </p>
 @endsection

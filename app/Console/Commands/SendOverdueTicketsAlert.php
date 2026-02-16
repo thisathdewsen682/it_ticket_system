@@ -40,7 +40,7 @@ class SendOverdueTicketsAlert extends Command
         }
 
         try {
-            Mail::to($itManager->email)->send(
+            Mail::to($itManager->email)->queue(
                 new OverdueTicketsMail($overdueTickets->toArray())
             );
             $this->info("Overdue tickets alert sent to IT Manager: {$itManager->email}");

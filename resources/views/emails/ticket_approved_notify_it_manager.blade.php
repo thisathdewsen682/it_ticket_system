@@ -1,22 +1,22 @@
 @extends('emails.layout', ['headerColor' => '#059669', 'headerColorDark' => '#047857', 'accentColor' => '#059669'])
 
 @section('header')
-    <h1>✅ Ticket Approved</h1>
-    <p>Assignment Required - Ticket #{{ $ticket->id }}</p>
+    <h1>✅ Job Approved</h1>
+    <p>Assignment Required - Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
     <p class="greeting">Hello <strong>IT Manager</strong>,</p>
 
     <p class="message">
-        A ticket has been approved by the department manager and is now ready for IT member assignment. Please review and assign an IT member to handle this request.
+        A Job has been approved by the department manager and is now ready for IT member assignment. Please review and assign an IT member to handle this request.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -51,7 +51,7 @@
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
+                {{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}
             </span>
         </div>
         @endif
@@ -67,7 +67,7 @@
     </div>
 
     <div class="alert-box">
-        <p><strong>⚠️ Action Required:</strong> Please assign an IT member to this ticket to begin work.</p>
+        <p><strong>⚠️ Action Required:</strong> Please assign an IT member to this job to begin work.</p>
     </div>
 
     <div class="button-container">
@@ -77,6 +77,6 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Log in to your IT Manager dashboard to assign this ticket to an available IT member.
+        Log in to your IT Manager dashboard to assign this job to an available IT member.
     </p>
 @endsection

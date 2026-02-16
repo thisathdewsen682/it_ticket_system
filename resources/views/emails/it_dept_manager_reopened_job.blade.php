@@ -2,7 +2,7 @@
 
 @section('header')
     <h1>🔄 Job Reopened - Reassignment Required</h1>
-    <p>IT Department Manager Reopened - Ticket #{{ $ticket->id }}</p>
+    <p>IT Department Manager Reopened - Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
@@ -13,10 +13,10 @@
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -50,7 +50,7 @@
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
-            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
+            <span class="info-value">{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</span>
         </div>
         @endif
 
@@ -78,12 +78,12 @@
     </div>
 
     <div class="button-container">
-        <a href="{{ url('/dashboard/unified?role_tab=it_manager&tab=pending') }}" class="button button-primary">Reassign Ticket</a>
+        <a href="{{ url('/dashboard/unified?role_tab=it_manager&tab=pending') }}" class="button button-primary">Reassign Job</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Log in to your IT Manager dashboard to reassign this ticket.
+        Log in to your IT Manager dashboard to reassign this job.
     </p>
 @endsection

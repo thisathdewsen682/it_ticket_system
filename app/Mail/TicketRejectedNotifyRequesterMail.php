@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TicketRejectedNotifyRequesterMail extends Mailable implements ShouldQueue
+class TicketRejectedNotifyRequesterMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -24,7 +24,7 @@ class TicketRejectedNotifyRequesterMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Ticket was Rejected - #' . $this->ticket->id,
+            subject: 'Your Job was Rejected - #' . $this->ticket->id,
         );
     }
 

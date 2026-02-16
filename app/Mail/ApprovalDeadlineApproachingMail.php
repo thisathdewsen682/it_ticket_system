@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ApprovalDeadlineApproachingMail extends Mailable implements ShouldQueue
+class ApprovalDeadlineApproachingMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -23,7 +23,7 @@ class ApprovalDeadlineApproachingMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Urgent: Approval Deadline Approaching - Ticket #' . $this->ticket->id,
+            subject: 'Urgent: Approval Deadline Approaching - Job #' . $this->ticket->id,
         );
     }
 

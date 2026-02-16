@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\TicketApprovedNotifyItManagerMail;
+use App\Mail\TicketApprovedNotifyItDeptManagerMail;
 use App\Mail\TicketApprovedNotifyRequesterMail;
 use App\Models\Ticket;
 use App\Models\TicketStatusHistory;
@@ -72,17 +72,25 @@ class TicketApprovalLinkController extends Controller
             $ticket->update(['status' => 'dept_approved']);
             $this->recordStatusChange($ticket, $request->user()->id, $from, 'dept_approved', 'Approved via email link.');
 
-            // Notify IT Manager (same as dashboard approval path)
-            $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
-            if ($itManager && $itManager->email) {
+            // Notify IT Dept Manager (same as dashboard approval path)
+            $itDeptManager = User::query()
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'it-dept-manager');
+                })
+                ->orWhereHas('role', function ($query) {
+                    $query->where('name', 'it-dept-manager');
+                })
+                ->first();
+
+            if ($itDeptManager && $itDeptManager->email) {
                 $ticket->loadMissing(['requester', 'approvalUser']);
-                Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+                Mail::to($itDeptManager->email)->queue(new TicketApprovedNotifyItDeptManagerMail($ticket));
             }
 
             // Notify Requester - Immediate email that ticket has been approved
             if ($ticket->requester && $ticket->requester->email) {
                 $ticket->loadMissing(['requester', 'approvalUser', 'itMember']);
-                Mail::to($ticket->requester->email)->send(new TicketApprovedNotifyRequesterMail($ticket));
+                Mail::to($ticket->requester->email)->queue(new TicketApprovedNotifyRequesterMail($ticket));
             }
 
             return view('tickets.approval_link_result', [
@@ -99,7 +107,7 @@ class TicketApprovalLinkController extends Controller
         $ticket->loadMissing(['requester', 'approvalUser']);
         if ($ticket->requester && $ticket->requester->email) {
             $rejectedBy = 'Department/Section Manager: ' . ($request->user()->name ?? 'Manager');
-            Mail::to($ticket->requester->email)->send(
+            Mail::to($ticket->requester->email)->queue(
                 new \App\Mail\TicketRejectedByDeptManagerMail($ticket, 'Rejected via email link.', $rejectedBy, $ticket->requester->name ?? null)
             );
         }

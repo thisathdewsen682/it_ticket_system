@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
-class UnassignedApprovedTicketsReminderMail extends Mailable implements ShouldQueue
+class UnassignedApprovedTicketsReminderMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,7 +22,7 @@ class UnassignedApprovedTicketsReminderMail extends Mailable implements ShouldQu
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reminder: ' . $this->tickets->count() . ' Tickets Awaiting Assignment/Reassignment',
+            subject: 'Reminder: ' . $this->tickets->count() . ' Job Awaiting Assignment/Reassignment',
         );
     }
 

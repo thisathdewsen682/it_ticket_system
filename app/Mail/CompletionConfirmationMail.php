@@ -10,23 +10,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CompletionConfirmationMail extends Mailable implements ShouldQueue
+class CompletionConfirmationMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $backoff = 5;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries = 3;
+    public int $tries = 3;
+    public array $backoff = [5];
 
     public function __construct(
         public Ticket $ticket,
@@ -37,7 +26,7 @@ class CompletionConfirmationMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Ticket has been Completed - #' . $this->ticket->id,
+            subject: 'Your Job has been Completed - #' . $this->ticket->id,
         );
     }
 

@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OverdueTicketsMail extends Mailable implements ShouldQueue
+class OverdueTicketsMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -21,7 +21,7 @@ class OverdueTicketsMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Escalation Alert: ' . count($this->tickets) . ' Overdue Ticket(s)',
+            subject: 'Escalation Alert: ' . count($this->tickets) . ' Overdue Job(s)',
         );
     }
 

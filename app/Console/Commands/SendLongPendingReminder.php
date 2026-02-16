@@ -41,7 +41,7 @@ class SendLongPendingReminder extends Command
             }
 
             try {
-                Mail::to($itMember->email)->send(new LongPendingTicketsMail($tickets->toArray()));
+                Mail::to($itMember->email)->queue(new LongPendingTicketsMail($tickets->toArray()));
                 $this->info("{$itMember->name}: Long-pending reminder sent ({$tickets->count()} ticket(s))");
                 $sent++;
             } catch (\Throwable $e) {

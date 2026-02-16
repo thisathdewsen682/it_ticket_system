@@ -54,13 +54,13 @@
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Requested Due Date:</span>
-            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
+            <span class="info-value">{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</span>
         </div>
         @endif
 
         <div class="info-row">
             <span class="info-label">Completed On:</span>
-            <span class="info-value">{{ now()->format('F j, Y g:i A') }}</span>
+            <span class="info-value">{{ now()->timezone('Asia/Colombo')->format('F j, Y g:i A') }}</span>
         </div>
 
         @if($ticket->description)

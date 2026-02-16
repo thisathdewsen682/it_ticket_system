@@ -57,7 +57,7 @@ class SendAssignedItMembersReminder extends Command
             }
 
             try {
-                Mail::to($itMember->email)->send(new TicketAssignedToItMemberMail($ticket));
+                Mail::to($itMember->email)->queue(new TicketAssignedToItMemberMail($ticket));
                 $this->info("Ticket #{$ticket->id}: Reminder sent to {$itMember->email}");
                 $sent++;
             } catch (\Throwable $e) {

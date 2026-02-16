@@ -9,14 +9,14 @@
     <p class="greeting">Dear <strong>IT Department Manager</strong>,</p>
 
     <p class="message">
-        This is a friendly reminder that the following ticket has been confirmed by the IT Manager and is awaiting your confirmation. Please review and confirm the completion, or reopen if further work is required.
+        This is a friendly reminder that the following job has been confirmed by the IT Manager and is awaiting your confirmation. Please review and confirm the completion, or reopen if further work is required.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -56,7 +56,7 @@
         <div class="info-row">
             <span class="info-label">Needed By:</span>
             <span class="info-value">
-                <strong>{{ $ticket->needed_by->format('F j, Y') }}</strong>
+                <strong>{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</strong>
                 @php
                     $daysRemaining = now()->startOfDay()->diffInDays($ticket->needed_by->startOfDay(), false);
                 @endphp
@@ -97,6 +97,6 @@
     </div>
 
     <div class="footer-note" style="margin-top: 20px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
-        <p>📌 <strong>Note:</strong> This is a daily reminder. You will continue to receive this email until action is taken on this ticket.</p>
+        <p>📌 <strong>Note:</strong> This is a daily reminder. You will continue to receive this email until action is taken on this job.</p>
     </div>
 @endsection

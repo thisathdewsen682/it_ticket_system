@@ -239,7 +239,7 @@ class TicketController extends Controller
 
         if ($itDeptManager) {
             $ticket->load(['requester', 'approvalUser']);
-            Mail::to($itDeptManager->email)->send(new TicketApprovedNotifyItDeptManagerMail($ticket));
+            Mail::to($itDeptManager->email)->queue(new TicketApprovedNotifyItDeptManagerMail($ticket));
         }
 
         return back()->with('status', 'Ticket approved and sent to IT Department Manager.');
@@ -272,7 +272,7 @@ class TicketController extends Controller
         $ticket->loadMissing(['requester', 'approvalUser']);
         $rejectedBy = 'Department/Section Manager: ' . ($request->user()->name ?? 'Manager');
         if ($ticket->requester && $ticket->requester->email) {
-            Mail::to($ticket->requester->email)->send(
+            Mail::to($ticket->requester->email)->queue(
                 new \App\Mail\TicketRejectedByDeptManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->requester->name ?? null)
             );
         }
@@ -331,7 +331,7 @@ class TicketController extends Controller
 
         if ($itManager) {
             $ticket->load(['requester', 'approvalUser']);
-            Mail::to($itManager->email)->send(new TicketApprovedNotifyItManagerMail($ticket));
+            Mail::to($itManager->email)->queue(new TicketApprovedNotifyItManagerMail($ticket));
         }
 
         return back()->with('status', 'Ticket confirmed and sent to IT Manager for assignment.');
@@ -366,13 +366,13 @@ class TicketController extends Controller
         $approverEmail = $ticket->approvalUser?->email;
 
         if ($requesterEmail) {
-            Mail::to($requesterEmail)->send(
+            Mail::to($requesterEmail)->queue(
                 new \App\Mail\TicketRejectedByItDeptManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->requester->name ?? null)
             );
         }
 
         if ($approverEmail) {
-            Mail::to($approverEmail)->send(
+            Mail::to($approverEmail)->queue(
                 new \App\Mail\TicketRejectedByItDeptManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->approvalUser->name ?? null)
             );
         }
@@ -407,13 +407,13 @@ class TicketController extends Controller
         $rejectedBy = 'IT Manager: ' . ($request->user()->name ?? 'Manager');
 
         if ($ticket->requester && $ticket->requester->email) {
-            Mail::to($ticket->requester->email)->send(
+            Mail::to($ticket->requester->email)->queue(
                 new \App\Mail\TicketRejectedByItManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->requester->name ?? null)
             );
         }
 
         if ($ticket->approvalUser && $ticket->approvalUser->email) {
-            Mail::to($ticket->approvalUser->email)->send(
+            Mail::to($ticket->approvalUser->email)->queue(
                 new \App\Mail\TicketRejectedByItManagerMail($ticket, $validated['remark'], $rejectedBy, $ticket->approvalUser->name ?? null)
             );
         }
@@ -424,7 +424,7 @@ class TicketController extends Controller
 
         foreach ($itDeptManagers as $itDeptManager) {
             if ($itDeptManager->email) {
-                Mail::to($itDeptManager->email)->send(
+                Mail::to($itDeptManager->email)->queue(
                     new \App\Mail\TicketRejectedByItManagerMail($ticket, $validated['remark'], $rejectedBy, $itDeptManager->name ?? null)
                 );
             }
@@ -478,7 +478,7 @@ class TicketController extends Controller
         // Send email to IT member
         $itMember = User::find($validated['it_member_id']);
         if ($itMember && $itMember->email) {
-            \Mail::to($itMember->email)->send(new \App\Mail\TicketAssignedToItMemberMail($ticket->fresh(['itMember', 'requester'])));
+            \Mail::to($itMember->email)->queue(new \App\Mail\TicketAssignedToItMemberMail($ticket->fresh(['itMember', 'requester'])));
         }
 
         return back()->with('status', 'Ticket assigned to IT member.');
@@ -520,7 +520,7 @@ class TicketController extends Controller
         // Send email to IT Manager
         $itManager = User::whereHas('role', fn($q) => $q->where('name', 'it_manager'))->first();
         if ($itManager && $itManager->email) {
-            \Mail::to($itManager->email)->send(new \App\Mail\TicketCompletedByItMemberMail($ticket->fresh(['itMember', 'requester'])));
+            \Mail::to($itManager->email)->queue(new \App\Mail\TicketCompletedByItMemberMail($ticket->fresh(['itMember', 'requester'])));
         }
 
         return back()->with('status', 'Marked as completed.');
@@ -852,7 +852,7 @@ class TicketController extends Controller
             $rejectUrl = TicketApprovalRequestMail::buildRejectUrl($ticket);
             $cutoff = TicketApprovalRequestMail::approvalCutoff($ticket);
 
-            Mail::to($ticket->approvalUser->email)->send(
+            Mail::to($ticket->approvalUser->email)->queue(
                 new TicketApprovalRequestMail($ticket, $approveUrl, $rejectUrl, $cutoff)
             );
         } catch (\Throwable $e) {

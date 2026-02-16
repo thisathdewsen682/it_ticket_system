@@ -2,21 +2,21 @@
 
 @section('header')
     <h1>⏰ Daily Reminder: Approval Confirmation Required</h1>
-    <p>IT Department Manager - Ticket #{{ $ticket->id }}</p>
+    <p>IT Department Manager - Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
     <p class="greeting">Dear <strong>IT Department Manager</strong>,</p>
 
     <p class="message">
-        This is a friendly reminder that the following ticket has been approved by the department manager and is awaiting your confirmation. Please review and confirm this ticket before it proceeds to the IT Manager for assignment.
+        This is a friendly reminder that the following job has been approved by the department manager and is awaiting your confirmation. Please review and confirm this job before it proceeds to the IT Manager for assignment.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -51,7 +51,7 @@
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value">
-                <strong>{{ $ticket->needed_by->format('F j, Y') }}</strong>
+                <strong>{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</strong>
                 @php
                     $daysRemaining = now()->startOfDay()->diffInDays($ticket->needed_by->startOfDay(), false);
                 @endphp
@@ -85,9 +85,9 @@
     <div class="footer-note">
         <p><strong>Action Required:</strong></p>
         <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>Review the approved ticket details</li>
+            <li>Review the approved job details</li>
             <li>Click "Confirm" to send to IT Manager for assignment</li>
-            <li>Click "Reject" if the ticket needs revision</li>
+            <li>Click "Reject" if the job needs revision</li>
         </ul>
     </div>
 

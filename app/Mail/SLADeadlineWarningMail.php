@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SLADeadlineWarningMail extends Mailable implements ShouldQueue
+class SLADeadlineWarningMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -23,7 +23,7 @@ class SLADeadlineWarningMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'SLA Deadline Warning - Ticket #' . $this->ticket->id . ' - ' . $this->daysRemaining . ' days remaining',
+            subject: 'SLA Deadline Warning - Job #' . $this->ticket->id . ' - ' . $this->daysRemaining . ' days remaining',
         );
     }
 

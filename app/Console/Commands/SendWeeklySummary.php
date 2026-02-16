@@ -57,7 +57,7 @@ class SendWeeklySummary extends Command
             ];
 
             try {
-                Mail::to($manager->email)->send(new WeeklySummaryMail($summary));
+                Mail::to($manager->email)->queue(new WeeklySummaryMail($summary));
                 $this->info("Weekly summary sent to {$manager->name} for section ID {$sectionId}");
                 $sent++;
             } catch (\Throwable $e) {

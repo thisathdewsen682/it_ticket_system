@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ItDeptManagerConfirmationReminderMail extends Mailable implements ShouldQueue
+class ItDeptManagerConfirmationReminderMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -21,7 +21,7 @@ class ItDeptManagerConfirmationReminderMail extends Mailable implements ShouldQu
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '⏰ Reminder: Confirm Job Completion - Ticket #' . $this->ticket->id,
+            subject: '⏰ Reminder: Confirm Job Completion - Job #' . $this->ticket->id,
         );
     }
 

@@ -145,14 +145,14 @@ Schedule::command('tickets:send-approval-reminders')
 // Schedule daily reminder emails for IT Department Manager to confirm approved tickets
 // Runs every day at 8:03 AM
 Schedule::command('tickets:send-it-dept-manager-approval-reminders')
-    ->dailyAt('08:03')
+    ->dailyAt('15:42')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails for unassigned approved tickets
 // Runs every day at 8:00 AM
 Schedule::command('tickets:send-unassigned-reminder')
-    ->dailyAt('08:05')
+    ->dailyAt('15:49')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -160,28 +160,28 @@ Schedule::command('tickets:send-unassigned-reminder')
     // Schedule daily reminder emails to assigned IT members
 // Runs every day at 8:04 AM
 Schedule::command('tickets:send-assigned-reminder')
-    ->dailyAt('08:10')
+    ->dailyAt('16:04')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails for IT Manager confirmations
 // Runs every day at 8:06 AM
 Schedule::command('tickets:send-it-manager-reminders')
-    ->dailyAt('08:15')
+    ->dailyAt('16:09')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails for IT Department Manager confirmations
 // Runs every day at 8:17 AM
 Schedule::command('tickets:send-it-dept-manager-confirmation-reminders')
-    ->dailyAt('08:17')
+    ->dailyAt('16:14')
     ->withoutOverlapping()
     ->onOneServer();
 
 // Schedule daily reminder emails to approvers about confirmed tickets
 // Runs every day at 8:07 AM
 Schedule::command('tickets:send-approver-confirmation-reminders')
-    ->dailyAt('08:20')
+    ->dailyAt('16:26')
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -190,7 +190,7 @@ Schedule::command('tickets:send-approver-confirmation-reminders')
     // Schedule completion confirmations to requesters
 // Runs every day at 8:14 AM
 Schedule::command('tickets:send-completion-confirmations')
-    ->dailyAt('08:25')
+    ->dailyAt('16:31')
     ->withoutOverlapping()
     ->onOneServer();
 

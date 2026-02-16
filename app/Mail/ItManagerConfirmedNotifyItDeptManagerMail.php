@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ItManagerConfirmedNotifyItDeptManagerMail extends Mailable
+class ItManagerConfirmedNotifyItDeptManagerMail extends QueuedMailable
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +20,7 @@ class ItManagerConfirmedNotifyItDeptManagerMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Job Completion Awaits Your Confirmation - Ticket #' . $this->ticket->id)
+        return $this->subject('Job Completion Awaits Your Confirmation - Job #' . $this->ticket->id)
             ->view('emails.it_manager_confirmed_notify_it_dept_manager');
     }
 }

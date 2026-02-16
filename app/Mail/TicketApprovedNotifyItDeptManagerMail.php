@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TicketApprovedNotifyItDeptManagerMail extends Mailable implements ShouldQueue
+class TicketApprovedNotifyItDeptManagerMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,14 +22,14 @@ class TicketApprovedNotifyItDeptManagerMail extends Mailable implements ShouldQu
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Approved Ticket - Confirmation Required #' . $this->ticket->id,
+            subject: 'New Approved Job - Confirmation Required #' . $this->ticket->id,
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.ticket_approved_notify_it_dept_manager',
+            view: 'emails.job_approved_notify_it_dept_manager',
         );
     }
 

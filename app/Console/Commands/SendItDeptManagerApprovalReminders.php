@@ -61,7 +61,7 @@ class SendItDeptManagerApprovalReminders extends Command
                 }
 
                 try {
-                    Mail::to($itDeptManager->email)->send(new ItDeptManagerApprovalReminderMail($ticket));
+                    Mail::to($itDeptManager->email)->queue(new ItDeptManagerApprovalReminderMail($ticket));
                     $this->info("Sent approval reminder to {$itDeptManager->name} for ticket #{$ticket->id}");
                     $count++;
                 } catch (\Exception $e) {

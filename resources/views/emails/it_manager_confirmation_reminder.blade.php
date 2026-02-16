@@ -9,14 +9,14 @@
     <p class="greeting">Dear <strong>IT Manager</strong>,</p>
 
     <p class="message">
-        This is a <strong>reminder</strong> that the following ticket has been completed by the IT member and is awaiting your confirmation. Please review and take action soon.
+        This is a <strong>reminder</strong> that the following job has been completed by the IT member and is awaiting your confirmation. Please review and take action soon.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -44,14 +44,14 @@
 
         <div class="info-row">
             <span class="info-label">Completed At:</span>
-            <span class="info-value">{{ $ticket->updated_at->format('F j, Y - H:i') }}</span>
+            <span class="info-value">{{ $ticket->updated_at->timezone('Asia/Colombo')->format('F j, Y - H:i') }}</span>
         </div>
 
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
+                {{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}
                 @if(now()->greaterThan($ticket->needed_by))
                     <span class="badge badge-urgent">OVERDUE</span>
                 @endif
@@ -70,7 +70,7 @@
     </div>
 
     <div class="alert-box">
-        <p><strong>⚠️ Action Required:</strong> This ticket is waiting for your confirmation. Please review and confirm or reopen as needed.</p>
+        <p><strong>⚠️ Action Required:</strong> This job is waiting for your confirmation. Please review and confirm or reopen as needed.</p>
     </div>
 
     <div class="button-container">
@@ -80,6 +80,6 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Access your IT Manager dashboard to take action on this ticket.
+        Access your IT Manager dashboard to take action on this job.
     </p>
 @endsection

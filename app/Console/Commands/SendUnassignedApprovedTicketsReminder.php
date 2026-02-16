@@ -42,7 +42,7 @@ class SendUnassignedApprovedTicketsReminder extends Command
         // Get all approved tickets that haven't been assigned to IT members
         $unassignedTickets = Ticket::with(['requester', 'approvalUser', 'itMember'])
             ->where(function ($query) {
-                $query->whereIn('status', ['dept_approved', 'it_reopened'])
+                $query->whereIn('status', ['dept_approved', 'it_dept_approved', 'it_reopened'])
                     ->whereNull('it_member_id');
             })
             ->orWhereIn('status', ['dept_reopened', 'it_reopened', 'requester_reopened'])
@@ -56,7 +56,7 @@ class SendUnassignedApprovedTicketsReminder extends Command
         }
 
         // Send reminder email
-        Mail::to($itManager->email)->send(new UnassignedApprovedTicketsReminderMail($unassignedTickets));
+        Mail::to($itManager->email)->queue(new UnassignedApprovedTicketsReminderMail($unassignedTickets));
 
         $this->info("Reminder sent to IT Manager ({$itManager->email}) for {$unassignedTickets->count()} ticket(s) awaiting assignment/reassignment.");
 

@@ -1,22 +1,22 @@
 @extends('emails.layout')
 
 @section('header')
-    <h1>🎯 New Ticket Assigned</h1>
-    <p>Ticket #{{ $ticket->id }}</p>
+    <h1>🎯 New Job Assigned</h1>
+    <p>Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
     <p class="greeting">Hello <strong>{{ $ticket->itMember->name }}</strong>,</p>
 
     <p class="message">
-        A new ticket has been assigned to you by the IT Manager. Please review the details below and start working on it as soon as possible.
+        A new job has been assigned to you by the IT Manager. Please review the details below and start working on it as soon as possible.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -44,9 +44,9 @@
 
         @if($ticket->needed_by)
         <div class="info-row">
-            <span class="info-label">Ticket Due Date:</span>
+            <span class="info-label">Job Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
+                {{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}
             </span>
         </div>
         @endif
@@ -55,7 +55,7 @@
         <div class="info-row">
             <span class="info-label">IT Completion Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ \Carbon\Carbon::parse($ticket->it_due_at)->format('F j, Y - H:i') }}
+                {{ \Carbon\Carbon::parse($ticket->it_due_at)->timezone('Asia/Colombo')->format('F j, Y - H:i') }}
             </span>
         </div>
         @endif
@@ -84,6 +84,6 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Please log in to your dashboard to start working on this ticket and update its status as you progress.
+        Please log in to your dashboard to start working on this job and update its status as you progress.
     </p>
 @endsection

@@ -41,7 +41,7 @@ class SendApprovalDeadlineWarnings extends Command
             $daysRemaining = now()->diffInDays($ticket->needed_by);
 
             try {
-                Mail::to($ticket->approvalUser->email)->send(
+                Mail::to($ticket->approvalUser->email)->queue(
                     new ApprovalDeadlineApproachingMail($ticket, $daysRemaining)
                 );
                 $this->info("Ticket #{$ticket->id}: Approval deadline warning sent");

@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TicketCompletedByItMemberMail extends Mailable implements ShouldQueue
+class TicketCompletedByItMemberMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,7 +22,7 @@ class TicketCompletedByItMemberMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Ticket Completed - Confirmation Required #' . $this->ticket->id,
+            subject: 'Job Completed - Confirmation Required #' . $this->ticket->id,
         );
     }
 

@@ -18,6 +18,7 @@ php artisan tickets:send-unassigned-reminder
 php artisan tickets:send-unassigned-deadline-warning
 php artisan tickets:send-approval-reminders
 php artisan tickets:send-assigned-reminder
+php artisan tickets:send-it-dept-manager-approval-reminders
 php artisan tickets:send-it-manager-reminders
 php artisan tickets:send-approver-confirmation-reminders
 php artisan tickets:send-approval-confirmation-reminders

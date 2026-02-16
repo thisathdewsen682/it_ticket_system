@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
-class TicketApprovalRequestMail extends Mailable implements ShouldQueue
+class TicketApprovalRequestMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

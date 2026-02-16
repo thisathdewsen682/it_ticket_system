@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class LongPendingTicketsMail extends Mailable implements ShouldQueue
+class LongPendingTicketsMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -21,7 +21,7 @@ class LongPendingTicketsMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Alert: ' . count($this->tickets) . ' Ticket(s) Pending for More Than 5 Days',
+            subject: 'Alert: ' . count($this->tickets) . ' Job(s) Pending for More Than 5 Days',
         );
     }
 

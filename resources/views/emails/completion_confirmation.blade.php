@@ -1,29 +1,29 @@
 @extends('emails.layout', ['headerColor' => '#10b981', 'headerColorDark' => '#059669', 'accentColor' => '#10b981'])
 
 @section('header')
-    <h1>✅ Ticket Completed</h1>
-    <p>Job Confirmed Complete - Ticket #{{ $ticket->id }}</p>
+    <h1>✅ Job Completed</h1>
+    <p>Job Confirmed Complete - Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
     <p class="greeting">Dear <strong>{{ $ticket->requester->name ?? 'Requester' }}</strong>,</p>
 
     <p class="message">
-        Your IT support ticket has been successfully completed and confirmed by the Department Manager.
+        Your IT support job has been successfully completed and confirmed by the Department Manager.
         @if($deptManager)
         <strong>{{ $deptManager->name }}</strong> has verified that the work has been completed to satisfaction.
         @endif
     </p>
     
     <p class="message">
-        The job is now closed. If you need any further assistance or have concerns about this ticket, please contact your department manager or submit a new ticket.
+        The job is now closed. If you need any further assistance or have concerns about this job, please contact your department manager or submit a new job request.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
 
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -61,18 +61,18 @@
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
-            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
+            <span class="info-value">{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</span>
         </div>
         @endif
         
         <div class="info-row">
             <span class="info-label">Completed On:</span>
-            <span class="info-value">{{ now()->format('F j, Y g:i A') }}</span>
+            <span class="info-value">{{ now()->timezone('Asia/Colombo')->format('F j, Y g:i A') }}</span>
         </div>
     </div>
 
     <div class="button-container">
-        <a href="{{ url('/tickets') }}" class="button button-primary">View Your Tickets</a>
+        <a href="{{ url('/jobs') }}" class="button button-primary">View Your Jobs</a>
     </div>
 
     <div class="divider"></div>

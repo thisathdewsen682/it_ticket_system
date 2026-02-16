@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ApprovalConfirmationReminderMail extends Mailable implements ShouldQueue
+class ApprovalConfirmationReminderMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -23,7 +23,7 @@ class ApprovalConfirmationReminderMail extends Mailable implements ShouldQueue
     {
         $count = count($this->tickets);
         return new Envelope(
-            subject: "ACTION REQUIRED: {$count} Ticket(s) Awaiting Your Confirmation",
+            subject: "ACTION REQUIRED: {$count} Job(s) Awaiting Your Confirmation",
         );
     }
 

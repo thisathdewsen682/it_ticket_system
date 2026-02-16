@@ -19,7 +19,7 @@ class SendApproverConfirmationReminders extends Command
         // Get all unique approvers who have confirmed tickets
         $approversWithConfirmedTickets = Ticket::query()
             ->with(['approvalUser:id,name,email', 'requester:id,name,email', 'itMember:id,name,email'])
-            ->where('status', 'it_mgr_confirmed')
+            ->whereIn('status', ['it_mgr_confirmed', 'it_dept_confirmed_completion'])
             ->whereNotNull('approval_user_id')
             ->whereHas('approvalUser', fn($q) => $q->whereNotNull('email'))
             ->get()
@@ -51,7 +51,7 @@ class SendApproverConfirmationReminders extends Command
                     ];
                 })->toArray();
 
-                Mail::to($approver->email)->send(new ApprovalConfirmationReminderMail(
+                Mail::to($approver->email)->queue(new ApprovalConfirmationReminderMail(
                     $approver->name,
                     $ticketData
                 ));

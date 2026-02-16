@@ -50,7 +50,7 @@
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
-            <span class="info-value">{{ $ticket->needed_by->format('F j, Y') }}</span>
+            <span class="info-value">{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</span>
         </div>
         @endif
 

@@ -1,22 +1,22 @@
 @extends('emails.layout', ['headerColor' => '#7c3aed', 'headerColorDark' => '#6d28d9', 'accentColor' => '#7c3aed'])
 
 @section('header')
-    <h1>✅ Ticket Approved - Confirmation Required</h1>
-    <p>IT Department Manager Action Needed - Ticket #{{ $ticket->id }}</p>
+    <h1>✅ Job Approved - Confirmation Required</h1>
+    <p>IT Department Manager Action Needed - Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
     <p class="greeting">Hello <strong>IT Department Manager</strong>,</p>
 
     <p class="message">
-        A ticket has been approved by the department manager. As IT Department Manager, please review and confirm this ticket before it proceeds to the IT Manager for assignment.
+        A Job has been approved by the department manager. As IT Department Manager, please review and confirm this job before it proceeds to the IT Manager for assignment.
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -51,7 +51,7 @@
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
+                {{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}
             </span>
         </div>
         @endif
@@ -67,16 +67,16 @@
     </div>
 
     <div class="alert-box">
-        <p><strong>⚠️ Action Required:</strong> Please confirm or reject this ticket. Once confirmed, it will be sent to the IT Manager for assignment.</p>
+        <p><strong>⚠️ Action Required:</strong> Please confirm or reject this job. Once confirmed, it will be sent to the IT Manager for assignment.</p>
     </div>
 
     <div class="button-container">
-        <a href="{{ url('/dashboard/unified?role_tab=it-dept-manager&tab=pending') }}" class="button button-primary">Review Ticket</a>
+        <a href="{{ url('/dashboard/unified?role_tab=it-dept-manager&tab=pending') }}" class="button button-primary">Review Job</a>
     </div>
 
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Log in to your IT Department Manager dashboard to confirm or reject this ticket.
+        Log in to your IT Department Manager dashboard to confirm or reject this job.
     </p>
 @endsection

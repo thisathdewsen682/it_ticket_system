@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ItDeptManagerReopenedJobMail extends Mailable
+class ItDeptManagerReopenedJobMail extends QueuedMailable
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +20,7 @@ class ItDeptManagerReopenedJobMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Job Reopened by IT Dept Manager - Ticket #' . $this->ticket->id)
+        return $this->subject('Job Reopened by IT Dept Manager - Job #' . $this->ticket->id)
             ->view('emails.it_dept_manager_reopened_job');
     }
 }

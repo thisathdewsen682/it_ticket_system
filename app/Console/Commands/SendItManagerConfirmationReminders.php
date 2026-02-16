@@ -46,7 +46,7 @@ class SendItManagerConfirmationReminders extends Command
             }
 
             try {
-                Mail::to($itManager->email)->send(new ItManagerConfirmationReminderMail($ticket));
+                Mail::to($itManager->email)->queue(new ItManagerConfirmationReminderMail($ticket));
                 $this->info("Sent reminder for ticket #{$ticket->id}");
                 $count++;
             } catch (\Exception $e) {

@@ -2,7 +2,7 @@
 
 @section('header')
     <h1>⏰ Reminder: Approval Required</h1>
-    <p>Pending Ticket Needs Your Attention</p>
+    <p>Pending Job Needs Your Attention</p>
 @endsection
 
 @section('content')
@@ -13,10 +13,10 @@
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 

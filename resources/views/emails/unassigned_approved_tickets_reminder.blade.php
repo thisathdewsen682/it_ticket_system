@@ -33,7 +33,7 @@
                         <span class="badge badge-{{ strtolower($ticket->priority) }}">{{ $ticket->priority }}</span>
                     </td>
                     <td style="padding: 10px; font-size: 14px; color: {{ $ticket->needed_by && now()->greaterThan($ticket->needed_by) ? '#dc2626' : '#374151' }};">
-                        {{ $ticket->needed_by ? $ticket->needed_by->format('M j, Y') : '-' }}
+                        {{ $ticket->needed_by ? $ticket->needed_by->timezone('Asia/Colombo')->format('M j, Y') : '-' }}
                         @if($ticket->needed_by && now()->greaterThan($ticket->needed_by))
                             <span class="badge badge-urgent">OVERDUE</span>
                         @endif

@@ -37,7 +37,7 @@ class SendCompletionConfirmations extends Command
             }
 
             try {
-                Mail::to($ticket->requester->email)->send(new CompletionConfirmationMail($ticket));
+                Mail::to($ticket->requester->email)->queue(new CompletionConfirmationMail($ticket));
                 $this->info("Ticket #{$ticket->id}: Completion confirmation sent to {$ticket->requester->email}");
                 $sent++;
             } catch (\Throwable $e) {

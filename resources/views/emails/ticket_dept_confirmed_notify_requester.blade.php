@@ -46,7 +46,7 @@
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value" style="color: #dc2626; font-weight: 600;">
-                {{ $ticket->needed_by->format('F j, Y') }}
+                {{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}
             </span>
         </div>
         @endif

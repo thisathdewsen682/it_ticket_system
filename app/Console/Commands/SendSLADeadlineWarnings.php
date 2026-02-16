@@ -43,7 +43,7 @@ class SendSLADeadlineWarnings extends Command
             }
 
             try {
-                Mail::to($recipient)->send(new SLADeadlineWarningMail($ticket, $daysRemaining));
+                Mail::to($recipient)->queue(new SLADeadlineWarningMail($ticket, $daysRemaining));
                 $this->info("Ticket #{$ticket->id}: SLA warning sent to {$recipient}");
                 $sent++;
             } catch (\Throwable $e) {

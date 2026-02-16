@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TicketReopenedByItManagerMail extends Mailable implements ShouldQueue
+class TicketReopenedByItManagerMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -23,7 +23,7 @@ class TicketReopenedByItManagerMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Ticket Reopened by IT Manager - #' . $this->ticket->id,
+            subject: 'Job Reopened by IT Manager - #' . $this->ticket->id,
         );
     }
 

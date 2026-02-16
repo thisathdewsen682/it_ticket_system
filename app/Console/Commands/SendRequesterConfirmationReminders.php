@@ -55,7 +55,7 @@ class SendRequesterConfirmationReminders extends Command
                     ];
                 })->toArray();
 
-                Mail::to($requester->email)->send(new RequesterConfirmationReminderMail(
+                Mail::to($requester->email)->queue(new RequesterConfirmationReminderMail(
                     $requester->name,
                     $ticketData
                 ));

@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\URL;
 
-class TicketApprovalReminderMail extends Mailable implements ShouldQueue
+class TicketApprovalReminderMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -26,7 +26,7 @@ class TicketApprovalReminderMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reminder: Ticket Approval Required - #' . $this->ticket->id,
+            subject: 'Reminder: Job Approval Required - #' . $this->ticket->id,
         );
     }
 
