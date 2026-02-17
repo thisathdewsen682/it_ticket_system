@@ -29,7 +29,7 @@ class TicketApprovedNotifyItDeptManagerMail extends QueuedMailable implements Sh
     public function content(): Content
     {
         return new Content(
-            view: 'emails.job_approved_notify_it_dept_manager',
+            view: 'emails.ticket_approved_notify_it_dept_manager',
         );
     }
 

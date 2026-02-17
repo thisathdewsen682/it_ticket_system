@@ -203,6 +203,11 @@ class DashboardController extends Controller
             ->paginate(10, ['*'], 'assigning_page')
             ->appends(['tab' => 'assigning', 'role_tab' => $request->get('role_tab')]);
 
+        $reopenedTickets = (clone $baseQuery)
+            ->whereIn('status', ['it_reopened', 'dept_reopened', 'requester_reopened'])
+            ->paginate(10, ['*'], 'reopened_page')
+            ->appends(['tab' => 'reopened', 'role_tab' => $request->get('role_tab')]);
+
         $pendingConfirmationTickets = (clone $baseQuery)
             ->where('status', 'it_completed')
             ->paginate(10, ['*'], 'pending_confirmation_page')
@@ -222,6 +227,7 @@ class DashboardController extends Controller
             'view' => 'dashboard.partials.it_manager',
             'approvedTickets' => $approvedTickets,
             'assigningTickets' => $assigningTickets,
+            'reopenedTickets' => $reopenedTickets,
             'pendingConfirmationTickets' => $pendingConfirmationTickets,
             'confirmedTickets' => $confirmedTickets,
             'completedTickets' => $completedTickets,

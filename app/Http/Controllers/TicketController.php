@@ -40,7 +40,7 @@ class TicketController extends Controller
 
         $allowed = false;
 
-        if ($user?->role?->name === 'it_manager') {
+        if ($user && ($user->hasRole('it_manager') || $user->hasRole('it-dept-manager') || $user->hasRole('dept_manager') || $user->hasRole('section_manager'))) {
             $allowed = true;
         }
 

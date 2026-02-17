@@ -9,6 +9,7 @@
             $tab = request('tab', 'approved');
             $tickets = match ($tab) {
                 'assigning' => $assigningTickets ?? collect(),
+                'reopened' => $reopenedTickets ?? collect(),
                 'pending_confirmation' => $pendingConfirmationTickets ?? collect(),
                 'confirmed' => $confirmedTickets ?? collect(),
                 'completed' => $completedTickets ?? collect(),
@@ -25,6 +26,10 @@
             <a href="{{ route('dashboard.unified', ['tab' => 'assigning', 'role_tab' => $role_tab]) }}"
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'assigning' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
                 Assigning
+            </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'reopened', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'reopened' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Reopened
             </a>
             <a href="{{ route('dashboard.unified', ['tab' => 'pending_confirmation', 'role_tab' => $role_tab]) }}"
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'pending_confirmation' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">

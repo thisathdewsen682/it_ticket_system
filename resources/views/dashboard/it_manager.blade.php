@@ -39,6 +39,7 @@
                         $tab = request('tab', 'approved');
                         $tickets = match ($tab) {
                             'assigning' => $assigningTickets ?? collect(),
+                            'reopened' => $reopenedTickets ?? collect(),
                             'pending_confirmation' => $pendingConfirmationTickets ?? collect(),
                             'confirmed' => $confirmedTickets ?? collect(),
                             'completed' => $completedTickets ?? collect(),
@@ -54,6 +55,10 @@
                         <a href="{{ route('dashboard.it_manager', ['tab' => 'assigning']) }}"
                             class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'assigning' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">
                             Assigning
+                        </a>
+                        <a href="{{ route('dashboard.it_manager', ['tab' => 'reopened']) }}"
+                            class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'reopened' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">
+                            Reopened
                         </a>
                         <a href="{{ route('dashboard.it_manager', ['tab' => 'pending_confirmation']) }}"
                             class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'pending_confirmation' ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-emerald-300' }}">

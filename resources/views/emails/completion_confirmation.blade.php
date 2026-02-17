@@ -9,7 +9,7 @@
     <p class="greeting">Dear <strong>{{ $ticket->requester->name ?? 'Requester' }}</strong>,</p>
 
     <p class="message">
-        Your IT support job has been successfully completed and confirmed by the Department Manager.
+        Your IT  job has been successfully completed and confirmed by the Department Manager.
         @if($deptManager)
         <strong>{{ $deptManager->name }}</strong> has verified that the work has been completed to satisfaction.
         @endif

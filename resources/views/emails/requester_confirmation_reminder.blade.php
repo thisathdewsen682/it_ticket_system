@@ -58,7 +58,7 @@
         </div>
     @endforeach
 
-    <div class="instructions-box">
+   <!-- <div class="instructions-box">
         <strong>How to Confirm or Reopen:</strong>
         <p>1. Log in to the IT Ticket System
 2. Navigate to your pending tickets
@@ -66,7 +66,7 @@
    - Click "CONFIRM" if the work is complete and satisfactory
    - Click "REOPEN" if more work is needed
    - Add a remark explaining your decision (optional)</p>
-    </div>
+    </div>-->
 
     <p class="message">
         Thank you for your prompt attention to these tickets. If you have any questions about the completed work, please contact the IT department directly.

@@ -263,6 +263,11 @@ Route::middleware(['auth'])->group(function () {
             ->paginate(10, ['*'], 'assigning_page')
             ->appends(['tab' => 'assigning']);
 
+        $reopenedTickets = (clone $baseQuery)
+            ->whereIn('status', ['it_reopened', 'dept_reopened', 'requester_reopened'])
+            ->paginate(10, ['*'], 'reopened_page')
+            ->appends(['tab' => 'reopened']);
+
         $pendingConfirmationTickets = (clone $baseQuery)
             ->where('status', 'it_completed')
             ->paginate(10, ['*'], 'pending_confirmation_page')
@@ -278,7 +283,7 @@ Route::middleware(['auth'])->group(function () {
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);
 
-        return view('dashboard.it_manager', compact('approvedTickets', 'assigningTickets', 'pendingConfirmationTickets', 'confirmedTickets', 'completedTickets', 'itMembers'));
+        return view('dashboard.it_manager', compact('approvedTickets', 'assigningTickets', 'reopenedTickets', 'pendingConfirmationTickets', 'confirmedTickets', 'completedTickets', 'itMembers'));
     })->middleware('role:it_manager')->name('dashboard.it_manager');
 
     Route::get('/dashboard/it-member', function () {

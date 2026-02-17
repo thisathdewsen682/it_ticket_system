@@ -2,8 +2,8 @@
 <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
     <div class="p-8 text-gray-900">
         <div class="mb-6">
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Create New Ticket</h3>
-            <p class="text-sm text-slate-600">Submit a new IT support request</p>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Submit New Job</h3>
+            <p class="text-sm text-slate-600">Submit a new IT Job</p>
         </div>
 
         @if (session('status'))
@@ -30,7 +30,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block font-semibold text-slate-900 mb-2" for="title">Ticket Title</label>
+                    <label class="block font-semibold text-slate-900 mb-2" for="title">Job Title</label>
                     <input type="text" name="title" id="title" value="{{ old('title') }}" required
                         class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
