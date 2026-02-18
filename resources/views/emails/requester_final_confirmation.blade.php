@@ -2,7 +2,7 @@
 
 @section('header')
     <h1>✅ Job Completed Successfully</h1>
-    <p>Final Confirmation - Ticket #{{ $ticket->id }}</p>
+    <p>Final Confirmation - Job #{{ $ticket->id }}</p>
 @endsection
 
 @section('content')
@@ -13,10 +13,10 @@
     </p>
 
     <div class="info-card">
-        <h3>📋 Ticket Details</h3>
+        <h3>📋 Job Details</h3>
         
         <div class="info-row">
-            <span class="info-label">Ticket ID:</span>
+            <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
 
@@ -80,6 +80,6 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        Thank you for using the IT Job Management System. If you need further assistance, please submit a new ticket.
+        Thank you for using the IT Job Management System. If you need further assistance, please submit a new job.
     </p>
 @endsection

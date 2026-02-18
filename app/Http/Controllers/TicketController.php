@@ -77,7 +77,7 @@ class TicketController extends Controller
             'it_reopened' => 'Reopened to IT',
             'dept_reopened' => 'Reopened by Manager',
             'requester_reopened' => 'Reopened by Requester',
-            'dept_rejected' => 'Rejected',
+            'dept_rejected' => ' Department Rejected',
         ];
 
         $validated = $request->validate([

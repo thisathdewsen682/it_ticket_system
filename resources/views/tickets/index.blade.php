@@ -31,6 +31,7 @@
                         $tickets = match ($tab) {
                             'active' => $activeTickets ?? collect(),
                             'completed' => $completedTickets ?? collect(),
+                            'rejected' => $rejectedTickets ?? collect(),
                             default => $pendingTickets ?? collect(),
                         };
                     @endphp
@@ -47,6 +48,10 @@
                         <a href="{{ route('tickets.index', ['tab' => 'completed']) }}"
                             class="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium {{ $tab === 'completed' ? 'border-indigo-300 bg-slate-50 text-indigo-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-gray-50' }}">
                             Completed
+                        </a>
+                        <a href="{{ route('tickets.index', ['tab' => 'rejected']) }}"
+                            class="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium {{ $tab === 'rejected' ? 'border-red-200 bg-red-50 text-red-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-gray-50' }}">
+                            Rejected
                         </a>
                     </div>
 
@@ -216,6 +221,8 @@
                                                     $statusClasses = match (strtolower((string) $ticket->status)) {
                                                         'dept_approved' => 'bg-slate-50 text-indigo-700 ring-indigo-200',
                                                         'dept_rejected' => 'bg-red-50 text-red-700 ring-red-200',
+                                                        'it_dept_rejected' => 'bg-red-50 text-red-700 ring-red-200',
+                                                        'it_manager_rejected' => 'bg-red-50 text-red-700 ring-red-200',
                                                         'it_assigned' => 'bg-green-50 text-green-700 ring-green-200',
                                                         'it_reopened' => 'bg-yellow-50 text-yellow-800 ring-yellow-200',
                                                         'dept_reopened' => 'bg-yellow-50 text-yellow-800 ring-yellow-200',
@@ -232,6 +239,8 @@
                                                     $statusLabel = match ($statusValue) {
                                                         'dept_approved' => 'Approved by Department Manager',
                                                         'dept_rejected' => 'Rejected by Department Manager',
+                                                        'it_dept_rejected' => 'Rejected by IT Department Manager',
+                                                        'it_manager_rejected' => 'Rejected by IT Manager',
                                                         'it_assigned' => 'Assigned to IT Member',
                                                         'it_reopened' => 'Reopened (Back to IT)',
                                                         'dept_reopened' => 'Reopened by Manager',
