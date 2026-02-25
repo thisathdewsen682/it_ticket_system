@@ -9,7 +9,7 @@
     <p class="greeting">Hello <strong>{{ $ticket->approvalUser->name ?? 'Manager' }}</strong>,</p>
 
     <p class="message">
-        The IT Manager and IT Department Manager have both confirmed completion of the ticket below. Please review and confirm if the job meets your requirements, or reopen if more work is needed.
+        The IT Department Manager has confirmed completion of the ticket below. The job is now considered complete. No further confirmation is required from you. Only the requester can confirm or reopen the job if needed.
     </p>
 
     <div class="info-card">
@@ -59,7 +59,7 @@
     </div>
 
     <div class="alert-box">
-        <p><strong>Next step:</strong> Please log in and confirm or reopen this ticket.</p>
+        <p><strong>Note:</strong> Only the requester can confirm or reopen this job from their dashboard.</p>
     </div>
 
     <div class="button-container">
@@ -70,6 +70,6 @@
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        You can confirm or reopen this ticket from your dashboard.
+        The job is now complete. Only the requester can confirm or reopen this ticket.
     </p>
 @endsection

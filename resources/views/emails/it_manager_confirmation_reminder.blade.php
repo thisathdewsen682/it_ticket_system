@@ -74,7 +74,7 @@
     </div>
 
     <div class="button-container">
-        <a href="{{ url('/dashboard/unified?role_tab=it_manager&tab=pending_confirmation') }}" class="button button-primary">Review & Confirm</a>
+        <a href="{{ route('dashboard.it_manager', ['tab' => 'pending_confirmation']) }}" class="button button-primary">Review & Confirm</a>
     </div>
 
     <div class="divider"></div>

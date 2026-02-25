@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class RequesterFinalConfirmationMail extends QueuedMailable implements ShouldQueue
+class CompletionConfirmedNotifyApproverMail extends QueuedMailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -19,20 +19,21 @@ class RequesterFinalConfirmationMail extends QueuedMailable implements ShouldQue
 
     public function __construct(
         public Ticket $ticket,
+        public $deptManager = null,
     ) {
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Job Completed & Confirmed - Job #' . $this->ticket->id,
+            subject: 'Job Completed - Notification for Approver - #' . $this->ticket->id,
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.requester_final_confirmation',
+            view: 'emails.completion_confirmed_notify_approver',
         );
     }
 

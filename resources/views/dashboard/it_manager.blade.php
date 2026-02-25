@@ -39,11 +39,13 @@
                         $tab = request('tab', 'approved');
                         $tickets = match ($tab) {
                             'assigning' => $assigningTickets ?? collect(),
-                            'reopened' => $reopenedTickets ?? collect(),
+                            'reopened' => $reopenedTickets ? $reopenedTickets->merge(
+                                ($approvedTickets ?? collect())->filter(fn($t) => $t->status === 'it_dept_reopened_completion')
+                            ) : collect(),
                             'pending_confirmation' => $pendingConfirmationTickets ?? collect(),
                             'confirmed' => $confirmedTickets ?? collect(),
                             'completed' => $completedTickets ?? collect(),
-                            default => $approvedTickets ?? collect(),
+                            default => $approvedTickets ? $approvedTickets->filter(fn($t) => $t->status !== 'it_dept_reopened_completion') : collect(),
                         };
                     @endphp
 
@@ -273,7 +275,7 @@
                                                                                 <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">
                                                                                     {{ $ticket->created_at?->format('Y-m-d H:i') }}</td>
                                                                                 <td class="whitespace-nowrap px-4 py-3">
-                                                                                    @if (in_array($ticket->status, ['it_dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true))
+                                                                                    @if (in_array($ticket->status, ['it_dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened', 'it_dept_reopened_completion'], true))
                                                                                         <form method="POST" action="{{ route('tickets.assign', $ticket) }}"
                                                                                             class="flex flex-col items-end gap-2">
                                                                                             @csrf
@@ -346,7 +348,9 @@
                         </div>
 
                         <div class="mt-4">
-                            {{ $tickets->links() }}
+                            @if(method_exists($tickets, 'links'))
+                                {{ $tickets->links() }}
+                            @endif
                         </div>
                     @endif
                 </div>

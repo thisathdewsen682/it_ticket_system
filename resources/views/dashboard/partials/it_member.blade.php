@@ -11,6 +11,7 @@
                 'reopened' => $reopenedTickets ?? collect(),
                 'completed' => $completedTickets ?? collect(),
                 'confirmed' => $confirmedTickets ?? collect(),
+                'rejected' => $rejectedTickets ?? collect(),
                 default => $assigningTickets ?? collect(),
             };
             $role_tab = request('role_tab');
@@ -32,6 +33,10 @@
             <a href="{{ route('dashboard.unified', ['tab' => 'confirmed', 'role_tab' => $role_tab]) }}"
                 class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'confirmed' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
                 Confirmed
+            </a>
+            <a href="{{ route('dashboard.unified', ['tab' => 'rejected', 'role_tab' => $role_tab]) }}"
+                class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-all shadow-sm {{ $tab === 'rejected' ? 'border-blue-700 bg-blue-700 text-white shadow-md hover:bg-blue-800' : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700' }}">
+                Rejected
             </a>
         </div>
 

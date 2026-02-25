@@ -78,7 +78,7 @@
     </div>
 
     <div class="button-container">
-        <a href="{{ url('/dashboard/unified?role_tab=it_manager&tab=pending') }}" class="button button-primary">Reassign Job</a>
+        <a href="{{ route('dashboard.it_manager', ['tab' => 'reopened']) }}" class="button button-primary">Reassign Job</a>
     </div>
 
     <div class="divider"></div>

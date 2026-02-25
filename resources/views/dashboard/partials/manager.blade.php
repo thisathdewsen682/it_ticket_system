@@ -75,20 +75,9 @@
                                         @elseif ($ticket->status === 'it_dept_confirmed_completion')
                                             <div class="flex flex-col items-end gap-2">
                                                 <div class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mb-1">
-                                                    <strong>Awaiting Your Confirmation</strong>
+                                                    <strong>Job completed. Awaiting requester confirmation.</strong>
                                                 </div>
-                                                <form method="POST" action="{{ route('tickets.dept_confirm_completion', $ticket) }}" class="inline">
-                                                    @csrf
-                                                    <x-primary-button class="bg-green-600 hover:bg-green-700">
-                                                        Confirm Completion
-                                                    </x-primary-button>
-                                                </form>
-                                                <button 
-                                                    onclick="openReopenModal({{ $ticket->id }})" 
-                                                    type="button"
-                                                    class="inline-flex items-center px-3 py-1.5 bg-orange-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-700 focus:bg-orange-700 active:bg-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                    Reopen
-                                                </button>
+                                                <div class="text-xs text-slate-600">No further action required from you. Only the requester can confirm or reopen this job.</div>
                                             </div>
                                         @endif
                                     </td>

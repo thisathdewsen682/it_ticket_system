@@ -167,7 +167,7 @@ class DashboardController extends Controller
             ->appends(['tab' => 'completed', 'role_tab' => $request->get('role_tab')]);
 
         $rejectedTickets = (clone $baseQuery)
-            ->where('status', 'it_dept_rejected')
+            ->whereIn('status', ['dept_rejected', 'it_dept_rejected', 'it_manager_rejected'])
             ->paginate(10, ['*'], 'rejected_page')
             ->appends(['tab' => 'rejected', 'role_tab' => $request->get('role_tab')]);
 
@@ -194,7 +194,8 @@ class DashboardController extends Controller
             ->orderByDesc('id');
 
         $approvedTickets = (clone $baseQuery)
-            ->whereIn('status', ['it_dept_approved', 'it_dept_reopened_completion'])
+            ->whereIn('status', ['it_dept_approved'])
+            ->where('approval_user_id', $user->id)
             ->paginate(10, ['*'], 'approved_page')
             ->appends(['tab' => 'approved', 'role_tab' => $request->get('role_tab')]);
 
@@ -204,7 +205,7 @@ class DashboardController extends Controller
             ->appends(['tab' => 'assigning', 'role_tab' => $request->get('role_tab')]);
 
         $reopenedTickets = (clone $baseQuery)
-            ->whereIn('status', ['it_reopened', 'dept_reopened', 'requester_reopened'])
+            ->whereIn('status', ['it_reopened', 'dept_reopened', 'requester_reopened', 'it_dept_reopened_completion'])
             ->paginate(10, ['*'], 'reopened_page')
             ->appends(['tab' => 'reopened', 'role_tab' => $request->get('role_tab')]);
 
@@ -270,12 +271,18 @@ class DashboardController extends Controller
             ->paginate(10, ['*'], 'confirmed_page')
             ->appends(['tab' => 'confirmed', 'role_tab' => $request->get('role_tab')]);
 
+        $rejectedTickets = (clone $baseQuery)
+            ->whereIn('status', ['dept_rejected', 'it_dept_rejected', 'it_manager_rejected'])
+            ->paginate(10, ['*'], 'rejected_page')
+            ->appends(['tab' => 'rejected', 'role_tab' => $request->get('role_tab')]);
+
         return [
             'view' => 'dashboard.partials.it_member',
             'assigningTickets' => $assigningTickets,
             'reopenedTickets' => $reopenedTickets,
             'completedTickets' => $completedTickets,
             'confirmedTickets' => $confirmedTickets,
+            'rejectedTickets' => $rejectedTickets,
         ];
     }
 }

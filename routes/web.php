@@ -33,13 +33,13 @@ Route::get('/dashboard', function (Request $request) {
     }
     
     // Single role - redirect to role-specific dashboard
-    return match ($user?->role?->name) {
-        'employee' => redirect()->route('dashboard.employee'),
-        'dept_manager', 'section_manager' => redirect()->route('dashboard.manager'),
-        'it_manager' => redirect()->route('dashboard.it_manager'),
-        'it_member' => redirect()->route('dashboard.it_member'),
-        default => redirect()->route('tickets.index'),
-    };
+        return match ($user?->role?->name) {
+            'employee' => redirect()->route('dashboard.employee'),
+            'dept_manager', 'section_manager' => redirect()->route('dashboard.manager'),
+            'it_manager' => redirect()->route('dashboard.it_manager', ['tab' => 'approved']),
+            'it_member' => redirect()->route('dashboard.it_member'),
+            default => redirect()->route('tickets.index'),
+        };
 })->middleware(['auth'])->name('dashboard');
 
 // Unified dashboard for users with multiple roles

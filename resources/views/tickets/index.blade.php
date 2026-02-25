@@ -269,7 +269,7 @@
                                                 @endif
                                             </td>
                                             <td class="whitespace-nowrap px-4 py-3 text-right text-sm">
-                                                @if ($ticket->status === 'dept_confirmed')
+                                                @if ($ticket->status === 'it_dept_confirmed_completion')
                                                     <div class="inline-flex items-center gap-2">
                                                         <form method="POST" action="{{ route('tickets.requester_confirm', $ticket) }}" class="inline-flex">
                                                             @csrf

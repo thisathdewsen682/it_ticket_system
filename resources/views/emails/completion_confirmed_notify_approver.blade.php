@@ -6,82 +6,55 @@
 @endsection
 
 @section('content')
-    <p class="greeting">Dear <strong>{{ $ticket->requester->name ?? 'Requester' }}</strong>,</p>
+    <p class="greeting">Dear <strong>{{ $ticket->approvalUser->name ?? 'Approver' }}</strong>,</p>
 
     <p class="message">
-        Your IT job has been successfully completed and confirmed by the IT Department Manager.
-        @if($deptManager)
-        <strong>{{ $deptManager->name }}</strong> has verified that the work has been completed to satisfaction.
-        @endif
-    </p>
-
-    <p class="message">
-        Both you and your department/section manager have been notified. <strong>No further confirmation is required from your manager.</strong> Only you (the requester) can confirm or reopen this job if needed.
-    </p>
-
-    <p class="message">
-        If you need any further assistance or have concerns about this job, you may confirm completion or reopen the job from your dashboard, or contact your department manager.
+        The IT Department Manager has confirmed completion of the job below. This is for your information only. No further action is required from you. Only the requester can confirm or reopen this job if needed.
     </p>
 
     <div class="info-card">
         <h3>📋 Job Details</h3>
-
         <div class="info-row">
             <span class="info-label">Job ID:</span>
             <span class="info-value"><strong>#{{ $ticket->id }}</strong></span>
         </div>
-
         <div class="info-row">
             <span class="info-label">Title:</span>
             <span class="info-value">{{ $ticket->title }}</span>
         </div>
-
         <div class="info-row">
             <span class="info-label">Category:</span>
             <span class="info-value">{{ $ticket->category }}</span>
         </div>
-
         <div class="info-row">
             <span class="info-label">Priority:</span>
             <span class="info-value">
                 <span class="badge badge-{{ strtolower($ticket->priority) }}">{{ $ticket->priority }}</span>
             </span>
         </div>
-
-        @if($ticket->itMember)
         <div class="info-row">
-            <span class="info-label">Handled By:</span>
-            <span class="info-value">{{ $ticket->itMember->name }} (IT Member)</span>
+            <span class="info-label">Requester:</span>
+            <span class="info-value">{{ $ticket->requester->name ?? 'N/A' }}</span>
         </div>
-        @endif
-        
-        @if($deptManager)
         <div class="info-row">
-            <span class="info-label">Confirmed By:</span>
-            <span class="info-value">{{ $deptManager->name }} ({{ $ticket->approvalUser->role->name ?? 'Department Manager' }})</span>
+            <span class="info-label">Completed By:</span>
+            <span class="info-value">{{ $ticket->itMember->name ?? 'IT Member' }}</span>
         </div>
-        @endif
-
         @if($ticket->needed_by)
         <div class="info-row">
             <span class="info-label">Due Date:</span>
             <span class="info-value">{{ $ticket->needed_by->timezone('Asia/Colombo')->format('F j, Y') }}</span>
         </div>
         @endif
-        
         <div class="info-row">
             <span class="info-label">Completed On:</span>
             <span class="info-value">{{ now()->timezone('Asia/Colombo')->format('F j, Y g:i A') }}</span>
         </div>
     </div>
 
-    <div class="button-container">
-        <a href="{{ url('/tickets') }}" class="button button-primary">View Your Jobs</a>
-    </div>
-
     <div class="divider"></div>
 
     <p style="text-align: center; color: #6b7280; font-size: 14px;">
-        <strong>Note:</strong> Only you (the requester) can confirm or reopen this job after IT Department Manager confirmation. Your manager has been notified and does not need to take any further action.
+        <strong>Note:</strong> No further action is required from you. Only the requester can confirm or reopen this job.
     </p>
 @endsection

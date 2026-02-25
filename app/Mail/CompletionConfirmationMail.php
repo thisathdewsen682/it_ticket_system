@@ -15,7 +15,7 @@ class CompletionConfirmationMail extends QueuedMailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public int $tries = 3;
-    public array $backoff = [5];
+    public int $backoff = 5;
 
     public function __construct(
         public Ticket $ticket,

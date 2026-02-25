@@ -288,47 +288,36 @@
                                                             </form>
                                                         </div>
                                                     @elseif ($ticket->status === 'it_mgr_confirmed')
-                                                        <div class="flex flex-col items-end gap-2">
-                                                            <form method="POST"
-                                                                action="{{ route('tickets.dept_confirm', $ticket) }}">
-                                                                @csrf
-                                                                <x-primary-button>
-                                                                    Confirm
-                                                                </x-primary-button>
-                                                            </form>
+                                                        @if(auth()->user()->role->name === 'it-dept-manager')
+                                                            <div class="flex flex-col items-end gap-2">
+                                                                <form method="POST"
+                                                                    action="{{ route('tickets.dept_confirm', $ticket) }}">
+                                                                    @csrf
+                                                                    <x-primary-button>
+                                                                        Confirm
+                                                                    </x-primary-button>
+                                                                </form>
 
-                                                            <form method="POST" action="{{ route('tickets.dept_reopen', $ticket) }}"
-                                                                class="flex items-center justify-end gap-2">
-                                                                @csrf
-                                                                <input type="text" name="remark" required
-                                                                    placeholder="Reopen reason"
-                                                                    class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                                                                <x-danger-button>
-                                                                    Reopen
-                                                                </x-danger-button>
-                                                            </form>
-                                                        </div>
+                                                                <form method="POST" action="{{ route('tickets.dept_reopen', $ticket) }}"
+                                                                    class="flex items-center justify-end gap-2">
+                                                                    @csrf
+                                                                    <input type="text" name="remark" required
+                                                                        placeholder="Reopen reason"
+                                                                        class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                                                    <x-danger-button>
+                                                                        Reopen
+                                                                    </x-danger-button>
+                                                                </form>
+                                                            </div>
+                                                        @else
+                                                            <div class="text-xs text-slate-600">Awaiting IT Dept Manager confirmation.</div>
+                                                        @endif
                                                     @elseif ($ticket->status === 'it_dept_confirmed_completion')
                                                         <div class="flex flex-col items-end gap-2">
                                                             <div class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mb-1">
-                                                                <strong>Awaiting Your Confirmation</strong>
+                                                                <strong>Job completed. Awaiting requester confirmation.</strong>
                                                             </div>
-                                                            <form method="POST" action="{{ route('tickets.dept_confirm_completion', $ticket) }}" class="inline">
-                                                                @csrf
-                                                                <x-primary-button class="bg-green-600 hover:bg-green-700">
-                                                                    Confirm Completion
-                                                                </x-primary-button>
-                                                            </form>
-                                                            <form method="POST" action="{{ route('tickets.dept_reopen', $ticket) }}"
-                                                                class="flex items-center justify-end gap-2">
-                                                                @csrf
-                                                                <input type="text" name="remark" required
-                                                                    placeholder="Reopen reason"
-                                                                    class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                                                                <x-danger-button>
-                                                                    Reopen
-                                                                </x-danger-button>
-                                                            </form>
+                                                            <div class="text-xs text-slate-600">No further action required from you. Only the requester can confirm or reopen this job.</div>
                                                         </div>
                                                     @else
                                                         <div class="text-right text-sm text-slate-700">{{ $ticket->status }}</div>

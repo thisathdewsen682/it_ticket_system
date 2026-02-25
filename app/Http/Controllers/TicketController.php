@@ -182,15 +182,25 @@ class TicketController extends Controller
             ->paginate(10, ['*'], 'active_page')
             ->appends(['tab' => 'active']);
 
-        // Completed: Fully closed or rejected
+        // Completed: Fully closed
         $completedTickets = (clone $baseQuery)
             ->whereIn('status', [
-                'dept_rejected',
-                'it_dept_rejected',
                 'requester_confirmed',
             ])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);
+
+        // Rejected: All rejected jobs
+        $rejectedTickets = (clone $baseQuery)
+            ->whereIn('status', [
+                'dept_rejected',
+                'it_dept_rejected',
+                'it_manager_rejected',
+            ])
+            ->paginate(10, ['*'], 'rejected_page')
+            ->appends(['tab' => 'rejected']);
+
+        return view('tickets.index', compact('pendingTickets', 'activeTickets', 'completedTickets', 'rejectedTickets'));
 
         return view('tickets.index', compact('pendingTickets', 'activeTickets', 'completedTickets'));
     }
@@ -388,7 +398,7 @@ class TicketController extends Controller
             abort(403);
         }
 
-        if (!in_array($ticket->status, ['it_dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened'])) {
+        if (!in_array($ticket->status, ['it_dept_approved', 'it_reopened', 'dept_reopened', 'requester_reopened', 'it_completed'])) {
             return back()->withErrors(['error' => 'This ticket cannot be rejected at this stage.']);
         }
 
@@ -435,7 +445,7 @@ class TicketController extends Controller
 
     public function assignToItMember(Request $request, Ticket $ticket): RedirectResponse
     {
-        if (!in_array($ticket->status, ['it_dept_approved', 'dept_approved', 'approved', 'it_reopened', 'dept_reopened', 'requester_reopened'], true)) {
+        if (!in_array($ticket->status, ['it_dept_approved', 'dept_approved', 'approved', 'it_reopened', 'dept_reopened', 'requester_reopened', 'it_dept_reopened_completion'], true)) {
             return back()->withErrors(['it_member_id' => 'This ticket is not ready for IT assignment yet.']);
         }
 
@@ -566,14 +576,16 @@ class TicketController extends Controller
         $ticket->update(['status' => 'it_dept_confirmed_completion']);
         $this->recordStatusChange($ticket, $request->user()->id, $from, 'it_dept_confirmed_completion', 'Completion confirmed by IT Dept Manager');
 
-        // Notify department/section manager who approved the ticket
+        // Notify requester and approval user that job is confirmed (no further confirmation required)
         $ticket->loadMissing(['approvalUser', 'requester', 'itMember']);
-        $approver = $ticket->approvalUser;
-        if ($approver && $approver->email) {
-            Mail::to($approver->email)->queue(new TicketItManagerConfirmedMail($ticket));
+        if ($ticket->requester && $ticket->requester->email) {
+            Mail::to($ticket->requester->email)->queue(new \App\Mail\CompletionConfirmationMail($ticket, $request->user()));
+        }
+        if ($ticket->approvalUser && $ticket->approvalUser->email) {
+            Mail::to($ticket->approvalUser->email)->queue(new \App\Mail\CompletionConfirmedNotifyApproverMail($ticket, $request->user()));
         }
 
-        return back()->with('status', 'Job completion confirmed and sent to Department Manager.');
+        return back()->with('status', 'Job completion confirmed. Requester and manager have been notified.');
     }
 
     // IT Department Manager reopens completed job
@@ -708,7 +720,7 @@ class TicketController extends Controller
             abort(403);
         }
 
-        if ($ticket->status !== 'dept_confirmed') {
+        if (!in_array($ticket->status, ['dept_confirmed', 'it_dept_confirmed_completion'])) {
             return back()->withErrors(['status' => 'This ticket is not ready for requester confirmation yet.']);
         }
 
@@ -719,12 +731,11 @@ class TicketController extends Controller
 
         // Send final confirmation email to actual requester if email exists
         $ticket->loadMissing(['requester', 'itMember']);
-        
         if ($ticket->actual_requester_email) {
             Mail::to($ticket->actual_requester_email)->later(now(), new \App\Mail\RequesterFinalConfirmationMail($ticket));
         }
 
-        return back()->with('status', 'Requester confirmed.');
+        return back()->with('status', 'Job marked as completed.');
     }
 
     public function requesterReopen(Request $request, Ticket $ticket): RedirectResponse
