@@ -1,9 +1,35 @@
 {{-- filepath: d:\Thisath\Company Projects\it_ticket_system\resources\views\layouts\navigation.blade.php --}}
 <nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm">
+
     @php
-        $roleName = auth()->user()?->role?->name;
-        // Use unified dashboard for all users
-        $dashboardUrl = route('dashboard.unified');
+        $user = auth()->user();
+        $roleName = $user?->role?->name;
+        $userRoles = $user?->getAllRoleNames() ?? [];
+        if (count($userRoles) > 1) {
+            $dashboardUrl = route('dashboard.unified');
+        } else {
+            // Only one role, use normal dashboard for that role
+            switch ($roleName) {
+                case 'employee':
+                    $dashboardUrl = route('dashboard.employee');
+                    break;
+                case 'dept_manager':
+                case 'section_manager':
+                    $dashboardUrl = route('dashboard.manager');
+                    break;
+                case 'it_manager':
+                    $dashboardUrl = route('dashboard.it_manager');
+                    break;
+                case 'it_member':
+                    $dashboardUrl = route('dashboard.it_member');
+                    break;
+                case 'it-dept-manager':
+                    $dashboardUrl = route('dashboard.it-dept-manager');
+                    break;
+                default:
+                    $dashboardUrl = route('dashboard.unified');
+            }
+        }
     @endphp
 
     <!-- Primary Navigation Menu -->

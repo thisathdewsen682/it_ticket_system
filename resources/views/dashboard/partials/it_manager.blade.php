@@ -13,6 +13,7 @@
                 'pending_confirmation' => $pendingConfirmationTickets ?? collect(),
                 'confirmed' => $confirmedTickets ?? collect(),
                 'completed' => $completedTickets ?? collect(),
+                'approved' => ($approvedTickets ?? collect())->filter(fn($t) => in_array($t->status, ['it_dept_approved', 'it_dept_reopened_completion'])),
                 default => $approvedTickets ?? collect(),
             };
             $role_tab = request('role_tab');

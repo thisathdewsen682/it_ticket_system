@@ -176,7 +176,6 @@ class TicketController extends Controller
                 'it_in_progress',
                 'it_completed',
                 'it_mgr_confirmed',
-                'it_dept_confirmed_completion',
                 'dept_confirmed',
             ])
             ->paginate(10, ['*'], 'active_page')
@@ -186,6 +185,7 @@ class TicketController extends Controller
         $completedTickets = (clone $baseQuery)
             ->whereIn('status', [
                 'requester_confirmed',
+                'it_dept_confirmed_completion',
             ])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);

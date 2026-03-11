@@ -294,7 +294,7 @@
                                                                     action="{{ route('tickets.dept_confirm', $ticket) }}">
                                                                     @csrf
                                                                     <x-primary-button>
-                                                                        Confirm
+                                                                        Accept Job
                                                                     </x-primary-button>
                                                                 </form>
 

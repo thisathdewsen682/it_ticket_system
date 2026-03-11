@@ -84,7 +84,7 @@
                                                         <div class="p-6">
                                                             <div class="flex items-start justify-between gap-4">
                                                                 <div>
-                                                                    <h2 class="text-lg font-semibold text-gray-900">Ticket History #{{ $ticket->id }}</h2>
+                                                                    <h2 class="text-lg font-semibold text-gray-900">Job History #{{ $ticket->id }}</h2>
                                                                     <div class="mt-1 text-sm text-slate-600">{{ $ticket->title }}</div>
                                                                 </div>
                                                                 <x-secondary-button x-on:click="$dispatch('close-modal', 'ticket-history-{{ $ticket->id }}')">Close</x-secondary-button>

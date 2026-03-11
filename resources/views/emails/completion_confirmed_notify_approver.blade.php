@@ -9,7 +9,7 @@
     <p class="greeting">Dear <strong>{{ $ticket->approvalUser->name ?? 'Approver' }}</strong>,</p>
 
     <p class="message">
-        The IT Department Manager has confirmed completion of the job below. This is for your information only. No further action is required from you. Only the requester can confirm or reopen this job if needed.
+        The IT Department Manager has confirmed completion of the job below. If you experience any issues or problems, please contact the IT team for assistance.
     </p>
 
     <div class="info-card">

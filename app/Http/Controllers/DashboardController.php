@@ -12,21 +12,23 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user()->load(['role', 'roles']);
-        
-        // Get all user roles
         $userRoles = $user->getAllRoleNames();
-        
-        // Determine active role tab from request or default to primary role
-        $activeRole = $request->get('role_tab', $user->role->name);
-        
-        // Ensure active role is one the user actually has
-        if (!in_array($activeRole, $userRoles)) {
-            $activeRole = $user->role->name;
+
+        // If user has only one role, always use that role for unified dashboard
+        if (count($userRoles) === 1) {
+            $activeRole = $userRoles[0];
+        } else {
+            // Determine active role tab from request or default to primary role
+            $activeRole = $request->get('role_tab', $user->role->name);
+            // Ensure active role is one the user actually has
+            if (!in_array($activeRole, $userRoles)) {
+                $activeRole = $user->role->name;
+            }
         }
-        
+
         // Get data based on active role
         $dashboardData = $this->getDashboardDataForRole($activeRole, $user, $request);
-        
+
         return view('dashboard.unified', [
             'userRoles' => $userRoles,
             'activeRole' => $activeRole,
@@ -108,7 +110,7 @@ class DashboardController extends Controller
 
         $pendingConfirmationTickets = (clone $baseQuery)
             ->whereIn('status', [
-                'it_dept_confirmed_completion',
+                // No statuses require confirmation now
             ])
             ->paginate(10, ['*'], 'pending_confirmation_page')
             ->appends(['tab' => 'pending_confirmation', 'role_tab' => $request->get('role_tab')]);
@@ -117,6 +119,7 @@ class DashboardController extends Controller
             ->whereIn('status', [
                 'dept_confirmed',
                 'requester_confirmed',
+                'it_dept_confirmed_completion',
             ])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed', 'role_tab' => $request->get('role_tab')]);
@@ -194,7 +197,7 @@ class DashboardController extends Controller
             ->orderByDesc('id');
 
         $approvedTickets = (clone $baseQuery)
-            ->whereIn('status', ['it_dept_approved'])
+            ->whereIn('status', ['it_dept_approved', 'it_dept_reopened_completion'])
             ->where('approval_user_id', $user->id)
             ->paginate(10, ['*'], 'approved_page')
             ->appends(['tab' => 'approved', 'role_tab' => $request->get('role_tab')]);
@@ -220,7 +223,7 @@ class DashboardController extends Controller
             ->appends(['tab' => 'confirmed', 'role_tab' => $request->get('role_tab')]);
 
         $completedTickets = (clone $baseQuery)
-            ->whereIn('status', ['dept_confirmed', 'requester_confirmed'])
+            ->whereIn('status', ['dept_confirmed', 'requester_confirmed', 'it_dept_confirmed_completion'])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed', 'role_tab' => $request->get('role_tab')]);
 
@@ -262,7 +265,7 @@ class DashboardController extends Controller
             ->appends(['tab' => 'reopened', 'role_tab' => $request->get('role_tab')]);
 
         $completedTickets = (clone $baseQuery)
-            ->where('status', 'it_completed')
+            ->whereIn('status', ['it_completed', 'it_dept_confirmed_completion'])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed', 'role_tab' => $request->get('role_tab')]);
 

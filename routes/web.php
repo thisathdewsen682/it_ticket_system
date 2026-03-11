@@ -206,6 +206,7 @@ Route::middleware(['auth'])->group(function () {
         $approvedTickets = (clone $baseQuery)
             ->whereIn('status', [
                 'dept_approved',
+                'it_dept_approved',
                 'it_assigned',
                 'it_reopened',
                 'dept_reopened',
@@ -218,7 +219,9 @@ Route::middleware(['auth'])->group(function () {
             ->appends(['tab' => 'approved']);
 
         $pendingConfirmationTickets = (clone $baseQuery)
-            ->where('status', 'it_dept_confirmed_completion')
+            ->whereIn('status', [
+                // No statuses require confirmation now
+            ])
             ->paginate(10, ['*'], 'pending_confirmation_page')
             ->appends(['tab' => 'pending_confirmation']);
 
@@ -226,6 +229,7 @@ Route::middleware(['auth'])->group(function () {
             ->whereIn('status', [
                 'dept_confirmed',
                 'requester_confirmed',
+                'it_dept_confirmed_completion',
             ])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);
@@ -279,7 +283,7 @@ Route::middleware(['auth'])->group(function () {
             ->appends(['tab' => 'confirmed']);
 
         $completedTickets = (clone $baseQuery)
-            ->whereIn('status', ['dept_confirmed', 'requester_confirmed'])
+            ->whereIn('status', ['dept_confirmed', 'requester_confirmed', 'it_dept_confirmed_completion'])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);
 
@@ -311,7 +315,7 @@ Route::middleware(['auth'])->group(function () {
             ->appends(['tab' => 'reopened']);
 
         $completedTickets = (clone $baseQuery)
-            ->where('status', 'it_completed')
+            ->whereIn('status', ['it_completed', 'it_dept_confirmed_completion'])
             ->paginate(10, ['*'], 'completed_page')
             ->appends(['tab' => 'completed']);
 
@@ -320,7 +324,12 @@ Route::middleware(['auth'])->group(function () {
             ->paginate(10, ['*'], 'confirmed_page')
             ->appends(['tab' => 'confirmed']);
 
-        return view('dashboard.it_member', compact('assigningTickets', 'reopenedTickets', 'completedTickets', 'confirmedTickets'));
+        $rejectedTickets = (clone $baseQuery)
+            ->whereIn('status', ['dept_rejected', 'it_dept_rejected', 'it_manager_rejected'])
+            ->paginate(10, ['*'], 'rejected_page')
+            ->appends(['tab' => 'rejected']);
+
+        return view('dashboard.it_member', compact('assigningTickets', 'reopenedTickets', 'completedTickets', 'confirmedTickets', 'rejectedTickets'));
     })->middleware('role:it_member')->name('dashboard.it_member');
 });
 

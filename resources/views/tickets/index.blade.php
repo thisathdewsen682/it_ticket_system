@@ -248,6 +248,7 @@
                                                         'it_in_progress' => 'IT Working (In Progress)',
                                                         'it_completed' => 'IT Marked Completed',
                                                         'it_mgr_confirmed' => 'IT Manager Confirmed',
+                                                        'it_dept_confirmed_completion' => 'Job Completed',
                                                         'dept_confirmed' => 'Department Confirmed',
                                                         'requester_confirmed' => 'Requester Confirmed',
                                                         'pending' => 'Pending',
@@ -271,21 +272,12 @@
                                             <td class="whitespace-nowrap px-4 py-3 text-right text-sm">
                                                 @if ($ticket->status === 'it_dept_confirmed_completion')
                                                     <div class="inline-flex items-center gap-2">
-                                                        <form method="POST" action="{{ route('tickets.requester_confirm', $ticket) }}" class="inline-flex">
-                                                            @csrf
-                                                            <x-primary-button>
-                                                                Confirm
-                                                            </x-primary-button>
-                                                        </form>
-
-                                                        <form method="POST" action="{{ route('tickets.reopen', $ticket) }}" class="inline-flex items-center gap-2">
-                                                            @csrf
-                                                            <input type="text" name="remark" required placeholder="Reopen reason"
-                                                                class="block w-48 rounded-md border-slate-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                                                            <x-danger-button>
-                                                                Reopen
-                                                            </x-danger-button>
-                                                        </form>
+                                                        <div class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mb-1">
+                                                            <strong>Job completed.</strong>
+                                                        </div>
+                                                        <div class="text-xs text-slate-600">
+                                                            If there is a problem with this job, please contact the IT team via email, phone, or submit a new job request.
+                                                        </div>
                                                     </div>
                                                 @else
                                                     <span class="text-slate-700">{{ $ticket->status }}</span>
