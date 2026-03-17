@@ -16,11 +16,11 @@
     </p>
 
     <p class="message">
-        Both you and your department/section manager have been notified. <strong>No further confirmation is required from your manager.</strong> Only you (the requester) can confirm or reopen this job if needed.
+        Both you and your department/section manager have been notified. <strong>No further confirmation is required from your manager.
     </p>
 
     <p class="message">
-        If you need any further assistance or have concerns about this job, you may confirm completion or reopen the job from your dashboard, or contact your department manager.
+        If you experience any issues or problems, please contact the IT team for assistance. Thank you for your cooperation and understanding throughout this process.
     </p>
 
     <div class="info-card">

@@ -97,7 +97,7 @@
                                                 <form method="POST" action="{{ route('tickets.it_dept_manager_confirm', $ticket) }}" class="inline">
                                                     @csrf
                                                     <x-primary-button class="bg-purple-600 hover:bg-purple-700">
-                                                        Confirm
+                                                        Accept
                                                     </x-primary-button>
                                                 </form>
                                                 <form method="POST" action="{{ route('tickets.it_dept_manager_reject', $ticket) }}"

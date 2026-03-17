@@ -10,6 +10,6 @@ abstract class QueuedMailable extends Mailable implements ShouldQueue
     // public int $tries = 5;
     // public array $backoff = [60, 300, 900];
 
-    public int $tries = 20;
-    public int $backoff = 60;
+    public int $tries = 5;
+    public int $backoff = 30;
 }

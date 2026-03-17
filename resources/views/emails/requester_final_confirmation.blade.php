@@ -9,7 +9,7 @@
     <p class="greeting">Dear <strong>{{ $ticket->actual_requester_name ?? 'Job Requestor' }}</strong>,</p>
 
     <p class="message">
-        The IT support job that was requested on your behalf has been completed and confirmed. The work has been successfully finished and approved by all parties.
+        The IT job that was requested on your behalf has been completed and confirmed. The work has been successfully finished and approved by all parties.
     </p>
 
     <div class="info-card">

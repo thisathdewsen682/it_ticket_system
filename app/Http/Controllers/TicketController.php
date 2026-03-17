@@ -584,6 +584,10 @@ class TicketController extends Controller
         if ($ticket->approvalUser && $ticket->approvalUser->email) {
             Mail::to($ticket->approvalUser->email)->queue(new \App\Mail\CompletionConfirmedNotifyApproverMail($ticket, $request->user()));
         }
+        // Notify actual job requester if they have an email
+        if ($ticket->actual_requester_email) {
+            Mail::to($ticket->actual_requester_email)->queue(new \App\Mail\RequesterFinalConfirmationMail($ticket));
+        }
 
         return back()->with('status', 'Job completion confirmed. Requester and manager have been notified.');
     }
