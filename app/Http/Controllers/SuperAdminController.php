@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeNewUserMail;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 
 class SuperAdminController extends Controller
@@ -22,6 +25,40 @@ class SuperAdminController extends Controller
         $roles = Role::orderBy('name')->get();
 
         return view('super-admin.users.edit', compact('user', 'roles'));
+    }
+
+    public function create()
+    {
+        $roles = Role::orderBy('name')->get();
+
+        return view('super-admin.users.create', compact('roles'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'employee_no' => ['required', 'string', 'max:255', 'unique:users,employee_no'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'role_id' => ['required', 'exists:roles,id'],
+        ]);
+
+        $temporaryPassword = Str::random(12);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'employee_no' => $validated['employee_no'],
+            'email' => $validated['email'],
+            'password' => $temporaryPassword,
+            'role_id' => $validated['role_id'],
+            'is_super_admin' => $request->has('is_super_admin'),
+            'force_password_change' => true,
+        ]);
+
+        Mail::to($user->email)->queue(new WelcomeNewUserMail($user, $temporaryPassword));
+
+        return redirect()->route('super-admin.users.index')
+            ->with('status', "User \"{$user->name}\" created successfully! A welcome email with login credentials has been sent to {$user->email}.");
     }
 
     public function update(Request $request, User $user)

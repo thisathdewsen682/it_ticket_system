@@ -336,10 +336,48 @@ Route::middleware(['auth'])->group(function () {
 // Super Admin Routes
 Route::middleware(['auth', 'super-admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/users', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [\App\Http\Controllers\SuperAdminController::class, 'create'])->name('users.create');
+    Route::post('/users', [\App\Http\Controllers\SuperAdminController::class, 'store'])->name('users.store');
     Route::get('/users/{user}/edit', [\App\Http\Controllers\SuperAdminController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [\App\Http\Controllers\SuperAdminController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [\App\Http\Controllers\SuperAdminController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/change-password', [\App\Http\Controllers\SuperAdminController::class, 'changePassword'])->name('users.change-password');
+});
+
+// Email Monitor Routes (Super Admin only)
+Route::middleware(['auth', 'super-admin'])->prefix('email-logs')->name('email-logs.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\EmailLogController::class, 'index'])->name('index');
+    Route::get('/pending', [\App\Http\Controllers\EmailLogController::class, 'pending'])->name('pending');
+    Route::get('/failed', [\App\Http\Controllers\EmailLogController::class, 'failed'])->name('failed');
+    Route::post('/failed/{uuid}/retry', [\App\Http\Controllers\EmailLogController::class, 'retry'])->name('retry');
+    Route::post('/failed/retry-all', [\App\Http\Controllers\EmailLogController::class, 'retryAll'])->name('retry-all');
+    Route::delete('/failed/{uuid}', [\App\Http\Controllers\EmailLogController::class, 'deleteFailed'])->name('delete-failed');
+    Route::delete('/failed', [\App\Http\Controllers\EmailLogController::class, 'flushFailed'])->name('flush-failed');
+    Route::get('/{emailLog}', [\App\Http\Controllers\EmailLogController::class, 'show'])->name('show');
+});
+
+// Force Password Change Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/force-change-password', function () {
+        if (!auth()->user()->force_password_change) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.force-change-password');
+    })->name('password.force-change');
+
+    Route::post('/force-change-password', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+        ]);
+
+        $user = auth()->user();
+        $user->update([
+            'password' => $request->password,
+            'force_password_change' => false,
+        ]);
+
+        return redirect()->route('dashboard')->with('status', 'Password changed successfully! Welcome to the system.');
+    })->name('password.force-update');
 });
 
 require __DIR__ . '/auth.php';

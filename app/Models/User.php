@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_super_admin',
+        'force_password_change',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
+            'force_password_change' => 'boolean',
         ];
     }
 

@@ -22,9 +22,16 @@
 
             <div class="bg-white overflow-hidden border border-slate-200 shadow-lg sm:rounded-xl">
                 <div class="p-8 text-gray-900">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-slate-900">All System Users</h3>
-                        <p class="text-sm text-slate-600 mt-1">Manage user accounts, roles, and permissions</p>
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-900">All System Users</h3>
+                            <p class="text-sm text-slate-600 mt-1">Manage user accounts, roles, and permissions</p>
+                        </div>
+                        <a href="{{ route('super-admin.users.create') }}"
+                            class="inline-flex items-center px-4 py-2.5 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            Create User
+                        </a>
                     </div>
 
                     <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">

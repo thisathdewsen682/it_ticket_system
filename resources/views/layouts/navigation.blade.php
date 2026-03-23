@@ -71,6 +71,9 @@
                         <x-nav-link :href="route('super-admin.users.index')" :active="request()->routeIs('super-admin.*')">
                             {{ __('Super Admin Panel') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('email-logs.index')" :active="request()->routeIs('email-logs.*')">
+                            {{ __('Email Monitor') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -149,6 +152,12 @@
             @if ($roleName && !in_array($roleName, ['employee', 'it_manager', 'it_member'], true))
                 <x-responsive-nav-link :href="route('tickets.approvals')" :active="request()->routeIs('tickets.approvals')">
                     {{ __('Approvals') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (auth()->user()?->is_super_admin)
+                <x-responsive-nav-link :href="route('email-logs.index')" :active="request()->routeIs('email-logs.*')">
+                    {{ __('Email Monitor') }}
                 </x-responsive-nav-link>
             @endif
         </div>
